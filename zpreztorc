@@ -1,0 +1,44 @@
+# Set case-sensitivity for completion, history lookup, etc.
+zstyle ':prezto:*:*' case-sensitive 'no'
+
+# Color output (auto set to 'no' on dumb terminals).
+zstyle ':prezto:*:*' color 'yes'
+
+# Set the Prezto modules to load (browse modules).
+# The order matters.
+zstyle ':prezto:load' pmodule \
+  'environment' \
+  'terminal' \
+  'editor' \
+  'history' \
+  'directory' \
+  'spectrum' \
+  'utility' \
+  'completion' \
+  'archive' \
+  'fasd' \
+  'git' \
+  'osx' \
+  'ruby' \
+  'syntax-highlighting' \
+  'history-substring-search' \
+  'ssh' \
+  'prompt'
+
+# Set the key mapping style to 'vi'
+zstyle ':prezto:module:editor' key-bindings 'vi'
+
+# Auto convert .... to ../..
+zstyle ':prezto:module:editor' dot-expansion 'yes'
+
+# Set the prompt theme to load.
+zstyle ':prezto:module:prompt' theme 'powerlevel9k'
+
+# Enable ssh-agent forwarding.
+zstyle ':prezto:module:ssh-agent' forwarding 'yes'
+
+# Auto set the tab and window titles.
+zstyle ':prezto:module:terminal' auto-title 'yes'
+
+# Auto start a tmux session when Zsh is launched.
+zstyle ':prezto:module:tmux' auto-start 'yes'
