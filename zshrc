@@ -7,6 +7,7 @@ fi
 for config_file ($HOME/.dotfiles/zsh/*.zsh) source $config_file
 
 # Theme config
+POWERLEVEL9K_MODE='awesome-patched'
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status rbenv time)
 POWERLEVEL9K_STATUS_VERBOSE=true
