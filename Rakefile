@@ -1,4 +1,6 @@
 ENV['HOMEBREW_CASK_OPTS'] = "--appdir=/Applications"
+DEFAULT_RUBY_VERSION = '2.3.0'
+DEFAULT_NODE_VERSION = '5'
 
 require 'rake'
 require 'fileutils'
@@ -21,11 +23,9 @@ task :install do
   install_files(['vim/'])
   # TODO: install an ssh config
 
-  # TODO: setup_rbenv .. Install latest ruby
-  # TODO: setup_nvm .. Install latest node
-
   install_vundle
   install_prezto
+  # TODO: copy custom profile to powerline dir
   # install_tmux_powerline
 
   # TODO: add font to folder and update this task
@@ -36,6 +36,9 @@ task :install do
   run_bundle_config
   run_osx_customization
   set_default_shell
+
+  setup_ruby
+  setup_node
 
   success_msg("installed")
 end
@@ -82,6 +85,23 @@ def setup_git_keychain
       sudo mv git-credential-osxkeychain "$(dirname $(which git))/git-credential-osxkeychain"
     }
   end
+end
+
+def setup_ruby
+  puts "======================================================"
+  puts "Installing Ruby"
+  puts "======================================================"
+  run %{
+    rbenv rehash
+    rbenv install #{DEFAULT_RUBY_VERSION}
+  }
+end
+
+def setup_node
+  puts "======================================================"
+  puts "Installing Node"
+  puts "======================================================"
+  run %{ nvm install #{DEFAULT_NODE_VERSION} }
 end
 
 def install_vundle
