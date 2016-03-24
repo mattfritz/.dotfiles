@@ -207,46 +207,25 @@ def install_term_theme
   puts "======================================================"
   puts "Installing iTerm2 themes"
   puts "======================================================"
-  # TODO: update this to use the correct themes and add themes to repo
-  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Solarized Light' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
-  run %{ /usr/libexec/PlistBuddy -c "Merge 'iTerm2/Solarized Light.itermcolors' :'Custom Color Presets':'Solarized Light'" ~/Library/Preferences/com.googlecode.iterm2.plist }
-  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Solarized Dark' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
-  run %{ /usr/libexec/PlistBuddy -c "Merge 'iTerm2/Solarized Dark.itermcolors' :'Custom Color Presets':'Solarized Dark'" ~/Library/Preferences/com.googlecode.iterm2.plist }
+
+  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Dotfiles Theme' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
+  run %{ /usr/libexec/PlistBuddy -c "Merge 'iterm/dark_theme.itermcolors' :'Custom Color Presets':'Dotfiles Theme'" ~/Library/Preferences/com.googlecode.iterm2.plist }
 
   # If iTerm2 is not installed or has never run, we can't autoinstall the profile since the plist is not there
   if !File.exists?(File.join(ENV['HOME'], '/Library/Preferences/com.googlecode.iterm2.plist'))
     puts "======================================================"
-    puts "To make sure your profile is using the solarized theme"
+    puts "To make sure your profile is using the dark theme"
     puts "Please check your settings under:"
     puts "Preferences> Profiles> [your profile]> Colors> Load Preset.."
     puts "======================================================"
     return
   end
 
-  # TODO: remove these options
-  # Ask the user which theme he wants to install
-  message = "Which theme would you like to apply to your iTerm2 profile?"
-  color_scheme = ask message, iTerm_available_themes
-
-  return if color_scheme == 'None'
-
-  color_scheme_file = File.join('iTerm2', "#{color_scheme}.itermcolors")
-
-  # Ask the user on which profile he wants to install the theme
+  color_scheme_file = File.join('iterm', "dark_theme.itermcolors")
   profiles = iTerm_profile_list
-  message = "I've found #{profiles.size} #{profiles.size>1 ? 'profiles': 'profile'} on your iTerm2 configuration, which one would you like to apply the Solarized theme to?"
   profiles << 'All'
-  selected = ask message, profiles
 
-  if selected == 'All'
-    (profiles.size-1).times { |idx| apply_theme_to_iterm_profile_idx idx, color_scheme_file }
-  else
-    apply_theme_to_iterm_profile_idx profiles.index(selected), color_scheme_file
-  end
-end
-
-def iTerm_available_themes
-   Dir['iTerm2/*.itermcolors'].map { |value| File.basename(value, '.itermcolors')} << 'None'
+  (profiles.size-1).times { |idx| apply_theme_to_iterm_profile_idx idx, color_scheme_file }
 end
 
 def iTerm_profile_list
@@ -256,21 +235,6 @@ def iTerm_profile_list
   end while $?.exitstatus==0
   profiles.pop
   profiles
-end
-
-def ask(message, values)
-  puts message
-  while true
-    values.each_with_index { |val, idx| puts " #{idx+1}. #{val}" }
-    selection = STDIN.gets.chomp
-    if (Float(selection)==nil rescue true) || selection.to_i < 0 || selection.to_i > values.size+1
-      puts "ERROR: Invalid selection.\n\n"
-    else
-      break
-    end
-  end
-  selection = selection.to_i-1
-  values[selection]
 end
 
 def install_prezto
