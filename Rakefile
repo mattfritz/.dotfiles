@@ -1,307 +1,378 @@
 ENV['HOMEBREW_CASK_OPTS'] = "--appdir=/Applications"
 
-def brew_install(package, *args)
-  versions = `brew list #{package} --versions`
-  options = args.last.is_a?(Hash) ? args.pop : {}
+require 'rake'
+require 'fileutils'
+# TODO: get Vundle class from https://raw.githubusercontent.com/skwp/dotfiles/master/bin/yadr/vundle.rb
+require File.join(File.dirname(__FILE__), 'bin', 'installer', 'vundle')
 
-  # if brew exits with error we install tmux
-  if versions.empty?
-    sh "brew install #{package} #{args.join ' '}"
-  elsif options[:requires]
-    # brew did not error out, verify tmux is greater than 1.8
-    # e.g. brew_tmux_query = 'tmux 1.9a'
-    installed_version = versions.split(/\n/).first.split(' ').last
-    unless version_match?(options[:requires], installed_version)
-      sh "brew upgrade #{package} #{args.join ' '}"
-    end
-  end
-end
-
-def version_match?(requirement, version)
-  # This is a hack, but it lets us avoid a gem dep for version checking.
-  # Gem dependencies must be numeric, so we remove non-numeric characters here.
-  version.gsub!(/[a-zA-Z]/, '')
-  Gem::Dependency.new('', requirement).match?('', version)
-end
-
-def install_github_bundle(user, package)
-  unless File.exist? File.expand_path("~/.vim/bundle/#{package}")
-    sh "git clone https://github.com/#{user}/#{package} ~/.vim/bundle/#{package}"
-  end
-end
-
-def brew_cask_install(package, *options)
-  output = `brew cask info #{package}`
-  return unless output.include?('Not installed')
-
-  sh "brew cask install --binarydir=#{`brew --prefix`.chomp}/bin #{package} #{options.join ' '}"
-end
-
-def step(description)
-  description = "-- #{description} "
-  description = description.ljust(80, '-')
+desc "Installs dotfiles and applications"
+task :install => [:submodule_init, :submodules] do
   puts
-  puts "\e[32m#{description}\e[0m"
-end
+  puts "======================================================"
+  puts "Installing..."
+  puts "======================================================"
+  puts
 
-def app_path(name)
-  path = "/Applications/#{name}.app"
-  ["~#{path}", path].each do |full_path|
-    return full_path if File.directory?(full_path)
+  unless RUBY_PLATFORM.downcase.include?("darwin")
+    $stderr.puts "Darwin only, for now" && return
   end
 
-  return nil
+  # TODO: install xcode command line tools
+  install_homebrew
+
+  # TODO: set up git keychain helper
+  # TODO: install heroku build tools and plugins
+  # TODO: INSTALL RBENV + BINSTUBS from https://github.com/ianheggie/rbenv-binstubs.git
+  # setup_rbenv
+  #
+  # TODO: install actual applications (Chrome, etc)
+
+  # this has all the runcoms from this directory.
+  install_files(Dir.glob('links/*'))
+  # TODO: make sure this works with directories
+  install_files(['zsh/'])
+  # TODO: add these vim configs to the repo with customizations https://github.com/timthrillist/minimum-awesome.git
+  # install_files(Dir.glob('vim/*'))
+
+  Rake::Task["install_vundle"].execute
+  # TODO: add submodules for these
+  # install_prezto
+  # Rake::Task["install_tmux_powerline"].execute
+
+  # TODO: add font to folder and update this task
+  # install_fonts
+
+  # TODO: include theme and hardcode
+  # install_term_theme
+
+  run_bundle_config
+
+  success_msg("installed")
 end
 
-def app?(name)
-  return !app_path(name).nil?
+desc "Initialize submodules"
+task :submodule_init do
+  run %{ git submodule update --init --recursive }
 end
 
-def get_backup_path(path)
-  number = 1
-  backup_path = "#{path}.bak"
-  loop do
-    if number > 1
-      backup_path = "#{backup_path}#{number}"
-    end
-    if File.exists?(backup_path) || File.symlink?(backup_path)
-      number += 1
-      next
-    end
-    break
+desc "Update submodules"
+task :submodules do
+  puts "======================================================"
+  puts "Downloading submodules...please wait"
+  puts "======================================================"
+
+  run %{
+    cd $HOME/.dotfiles
+    git submodule update --recursive
+    git clean -df
+  }
+  puts
+end
+
+desc "Performs migration from pathogen to vundle"
+task :vundle_migration do
+  puts "======================================================"
+  puts "Migrating from pathogen to vundle vim plugin manager. "
+  puts "This will move the old .vim/bundle directory to"
+  puts ".vim/bundle.old and replacing all your vim plugins with"
+  puts "the standard set of plugins. You will then be able to "
+  puts "manage your vim's plugin configuration by editing the "
+  puts "file .vimrc.bundles"
+  puts "======================================================"
+
+  Dir.glob(File.join('vim', 'bundle','**')) do |sub_path|
+    run %{git config -f #{File.join('.git', 'config')} --remove-section submodule.#{sub_path}}
+    # `git rm --cached #{sub_path}`
+    FileUtils.rm_rf(File.join('.git', 'modules', sub_path))
   end
-  backup_path
+  FileUtils.mv(File.join('vim','bundle'), File.join('vim', 'bundle.old'))
 end
 
-def link_file(original_filename, symlink_filename)
-  original_path = File.expand_path(original_filename)
-  symlink_path = File.expand_path(symlink_filename)
-  if File.exists?(symlink_path) || File.symlink?(symlink_path)
-    if File.symlink?(symlink_path)
-      symlink_points_to_path = File.readlink(symlink_path)
-      return if symlink_points_to_path == original_path
-      # Symlinks can't just be moved like regular files. Recreate old one, and
-      # remove it.
-      ln_s symlink_points_to_path, get_backup_path(symlink_path), :verbose => true
-      rm symlink_path
-    else
-      # Never move user's files without creating backups first
-      mv symlink_path, get_backup_path(symlink_path), :verbose => true
-    end
+desc "Runs Vundle installer in a clean vim environment"
+task :install_vundle do
+  puts "======================================================"
+  puts "Installing and updating vundles."
+  puts "The installer will now run PluginInstall to install vundles."
+  puts "======================================================"
+
+  puts ""
+
+  vundle_path = File.join('vim','bundle', 'vundle')
+  unless File.exists?(vundle_path)
+    run %{
+      cd $HOME/.dotfiles
+      git clone https://github.com/gmarik/vundle.git #{vundle_path}
+    }
   end
-  ln_s original_path, symlink_path, :verbose => true
+
+  Vundle::update_vundle
 end
 
-def unlink_file(original_filename, symlink_filename)
-  original_path = File.expand_path(original_filename)
-  symlink_path = File.expand_path(symlink_filename)
-  if File.symlink?(symlink_path)
-    symlink_points_to_path = File.readlink(symlink_path)
-    if symlink_points_to_path == original_path
-      # the symlink is installed, so we should uninstall it
-      rm_f symlink_path, :verbose => true
-      backups = Dir["#{symlink_path}*.bak"]
-      case backups.size
-      when 0
-        # nothing to do
-      when 1
-        mv backups.first, symlink_path, :verbose => true
-      else
-        $stderr.puts "found #{backups.size} backups for #{symlink_path}, please restore the one you want."
-      end
-    else
-      $stderr.puts "#{symlink_path} does not point to #{original_path}, skipping."
-    end
+task :default => 'install'
+
+
+private
+def run(cmd)
+  puts "[Running] #{cmd}"
+  `#{cmd}` unless ENV['DEBUG']
+end
+
+def number_of_cores
+  if RUBY_PLATFORM.downcase.include?("darwin")
+    cores = run %{ sysctl -n hw.ncpu }
   else
-    $stderr.puts "#{symlink_path} is not a symlink, skipping."
+    cores = run %{ nproc }
+  end
+  puts
+  cores.to_i
+end
+
+def run_bundle_config
+  return unless system("which bundle")
+
+  bundler_jobs = number_of_cores - 1
+  puts "======================================================"
+  puts "Configuring Bundler for parallel gem installation"
+  puts "======================================================"
+  run %{ bundle config --global jobs #{bundler_jobs} }
+  puts
+end
+
+def install_homebrew
+  run %{which brew}
+  unless $?.success?
+    puts "======================================================"
+    puts "Installing Homebrew, the OSX package manager...If it's"
+    puts "already installed, this will do nothing."
+    puts "======================================================"
+    run %{ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"}
+  end
+
+  puts
+  puts
+  puts "======================================================"
+  puts "Updating Homebrew."
+  puts "======================================================"
+  run %{brew update}
+  puts
+  puts
+  puts "======================================================"
+  puts "Installing Homebrew packages...There may be some warnings."
+  puts "======================================================"
+
+  ruby_build_deps = ['openssl', 'libyaml', 'libffi'].join(' ')
+  package_list = [
+    'brew-cask',
+    'chromedriver',
+    'ctags',
+    'elixir',
+    'exercism',
+    'fasd',
+    'git',
+    'go',
+    'hub',
+    'jq',
+    'mongodb',
+    'nvm',
+    'rbenv',
+    'readline',
+    'reattach-to-user-namespace',
+    'mpg123',
+    'mysql',
+    'phantomjs',
+    'postgresql',
+    'selenium-server-standalone',
+    'the-silver-searcher',
+    'tmux',
+    'tree',
+    'zsh',
+  ].join(' ')
+
+  run %{brew install #{ruby_build_deps} #{package_list}}
+  run %{brew install grep --with-default-names}
+  run %{brew install vim --override-system-vi --with-lua --with-luajit}
+  puts
+  puts
+
+  # TODO: install casks here
+end
+
+def install_fonts
+  puts "======================================================"
+  puts "Installing patched fonts for Powerline"
+  puts "======================================================"
+  run %{ cp -f $HOME/.dotfiles/fonts/* $HOME/Library/Fonts }
+  run %{ mkdir -p ~/.fonts && cp ~/.dotfiles/fonts/* ~/.fonts && fc-cache -vf ~/.fonts }
+  puts
+end
+
+def install_term_theme
+  puts "======================================================"
+  puts "Installing iTerm2 themes"
+  puts "======================================================"
+  # TODO: update this to use the correct themes and add themes to repo
+  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Solarized Light' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
+  run %{ /usr/libexec/PlistBuddy -c "Merge 'iTerm2/Solarized Light.itermcolors' :'Custom Color Presets':'Solarized Light'" ~/Library/Preferences/com.googlecode.iterm2.plist }
+  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Solarized Dark' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
+  run %{ /usr/libexec/PlistBuddy -c "Merge 'iTerm2/Solarized Dark.itermcolors' :'Custom Color Presets':'Solarized Dark'" ~/Library/Preferences/com.googlecode.iterm2.plist }
+
+  # If iTerm2 is not installed or has never run, we can't autoinstall the profile since the plist is not there
+  if !File.exists?(File.join(ENV['HOME'], '/Library/Preferences/com.googlecode.iterm2.plist'))
+    puts "======================================================"
+    puts "To make sure your profile is using the solarized theme"
+    puts "Please check your settings under:"
+    puts "Preferences> Profiles> [your profile]> Colors> Load Preset.."
+    puts "======================================================"
+    return
+  end
+
+  # TODO: remove these options
+  # Ask the user which theme he wants to install
+  message = "Which theme would you like to apply to your iTerm2 profile?"
+  color_scheme = ask message, iTerm_available_themes
+
+  return if color_scheme == 'None'
+
+  color_scheme_file = File.join('iTerm2', "#{color_scheme}.itermcolors")
+
+  # Ask the user on which profile he wants to install the theme
+  profiles = iTerm_profile_list
+  message = "I've found #{profiles.size} #{profiles.size>1 ? 'profiles': 'profile'} on your iTerm2 configuration, which one would you like to apply the Solarized theme to?"
+  profiles << 'All'
+  selected = ask message, profiles
+
+  if selected == 'All'
+    (profiles.size-1).times { |idx| apply_theme_to_iterm_profile_idx idx, color_scheme_file }
+  else
+    apply_theme_to_iterm_profile_idx profiles.index(selected), color_scheme_file
   end
 end
 
-namespace :install do
-  desc 'Update or Install Brew'
-  task :brew do
-    step 'Homebrew'
-    unless system('which brew > /dev/null || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"')
-      raise "Homebrew must be installed before continuing."
+def iTerm_available_themes
+   Dir['iTerm2/*.itermcolors'].map { |value| File.basename(value, '.itermcolors')} << 'None'
+end
+
+def iTerm_profile_list
+  profiles=Array.new
+  begin
+    profiles <<  %x{ /usr/libexec/PlistBuddy -c "Print :'New Bookmarks':#{profiles.size}:Name" ~/Library/Preferences/com.googlecode.iterm2.plist 2>/dev/null}
+  end while $?.exitstatus==0
+  profiles.pop
+  profiles
+end
+
+def ask(message, values)
+  puts message
+  while true
+    values.each_with_index { |val, idx| puts " #{idx+1}. #{val}" }
+    selection = STDIN.gets.chomp
+    if (Float(selection)==nil rescue true) || selection.to_i < 0 || selection.to_i > values.size+1
+      puts "ERROR: Invalid selection.\n\n"
+    else
+      break
     end
   end
+  selection = selection.to_i-1
+  values[selection]
+end
 
-  desc 'Install Homebrew Cask'
-  task :brew_cask do
-    step 'Homebrew Cask'
-    system('brew untap phinze/cask') if system('brew tap | grep phinze/cask > /dev/null')
-    unless system('brew tap | grep caskroom/cask > /dev/null') || system('brew tap caskroom/homebrew-cask')
-      abort "Failed to tap caskroom/homebrew-cask in Homebrew."
+def install_prezto
+  puts
+  puts "Installing Prezto (ZSH Enhancements)..."
+
+  # TODO: link just the required files for zsh, or just reference them in the linked zshrc
+  run %{ ln -nfs "$HOME/.dotfiles/zsh/prezto" "${ZDOTDIR:-$HOME}/.zprezto" }
+
+  # TODO: make sure all files are referenced
+  # The prezto runcoms are only going to be installed if zprezto has never been installed
+  install_files(Dir.glob('zsh/prezto/runcoms/z*'), :symlink)
+
+  # TODO: substitute this for the zpreztorc that is stored in the .dotfiles
+  puts
+  puts "Overriding prezto ~/.zpreztorc with YADR's zpreztorc to enable additional modules..."
+  run %{ ln -nfs "$HOME/.yadr/zsh/prezto-override/zpreztorc" "${ZDOTDIR:-$HOME}/.zpreztorc" }
+
+  if ENV["SHELL"].include? 'zsh' then
+    puts "Zsh is already configured as your shell of choice. Restart your session to load the new settings"
+  else
+    puts "Setting zsh as your default shell"
+    if File.exists?("/usr/local/bin/zsh")
+      if File.readlines("/private/etc/shells").grep("/usr/local/bin/zsh").empty?
+        puts "Adding zsh to standard shell list"
+        run %{ echo "/usr/local/bin/zsh" | sudo tee -a /private/etc/shells }
+      end
+      run %{ chsh -s /usr/local/bin/zsh }
+    else
+      run %{ chsh -s /bin/zsh }
+    end
+  end
+end
+
+def install_files(files, method = :symlink)
+  files.each do |f|
+    file = f.split('/').last
+    source = "#{ENV["PWD"]}/#{f}"
+    target = "#{ENV["HOME"]}/.#{file}"
+
+    puts "======================#{file}=============================="
+    puts "Source: #{source}"
+    puts "Target: #{target}"
+
+    if File.exists?(target) && (!File.symlink?(target) || (File.symlink?(target) && File.readlink(target) != source))
+      puts "[Overwriting] #{target}...leaving original at #{target}.backup..."
+      run %{ mv "$HOME/.#{file}" "$HOME/.#{file}.backup" }
     end
 
-    brew_install 'brew-cask'
-  end
-
-  desc 'Install The Silver Searcher'
-  task :the_silver_searcher do
-    step 'the_silver_searcher'
-    brew_install 'the_silver_searcher'
-  end
-
-  desc 'Install iTerm'
-  task :iterm do
-    step 'iterm2'
-    unless app? 'iTerm'
-      brew_cask_install 'iterm2'
-    end
-  end
-
-  desc 'Install ctags'
-  task :ctags do
-    step 'ctags'
-    brew_install 'ctags'
-  end
-
-  desc 'Install reattach-to-user-namespace'
-  task :reattach_to_user_namespace do
-    step 'reattach-to-user-namespace'
-    brew_install 'reattach-to-user-namespace'
-  end
-
-  desc 'Install tmux'
-  task :tmux do
-    step 'tmux'
-    # tmux copy-pipe function needs tmux >= 1.8
-    brew_install 'tmux', :requires => '>= 2.1'
-  end
-
-  desc 'Install MacVim'
-  task :macvim do
-    step 'MacVim'
-    unless app? 'MacVim'
-      brew_cask_install 'macvim'
+    if method == :symlink
+      run %{ ln -nfs "#{source}" "#{target}" }
+    else
+      run %{ cp -f "#{source}" "#{target}" }
     end
 
-    bin_dir = File.expand_path('~/bin')
-    bin_vim = File.join(bin_dir, 'vim')
-    unless ENV['PATH'].split(':').include?(bin_dir)
-      puts 'Please add ~/bin to your PATH, e.g. run this command:'
-      puts
-      puts %{  echo 'export PATH="~/bin:$PATH"' >> ~/.bashrc}
-      puts
-      puts 'The exact command and file will vary by your shell and configuration.'
-    end
-
-    FileUtils.mkdir_p(bin_dir)
-    unless File.executable?(bin_vim)
-      File.open(bin_vim, 'w', 0744) do |io|
-        io << <<-SHELL
-#!/bin/bash
-exec /Applications/MacVim.app/Contents/MacOS/Vim "$@"
-        SHELL
+    # TODO: probably remove this because its already referenced in the zshrc
+    # Temporary solution until we find a way to allow customization
+    # This modifies zshrc to load all of yadr's zsh extensions.
+    # Eventually yadr's zsh extensions should be ported to prezto modules.
+    if file == 'zshrc'
+      File.open(target, 'a') do |zshrc|
+        zshrc.puts('for config_file ($HOME/.yadr/zsh/*.zsh) source $config_file')
       end
     end
-  end
 
-  desc 'Install Vundle'
-  task :vundle do
-    step 'vundle'
-    install_github_bundle 'VundleVim','Vundle.vim'
-    sh '~/bin/vim -c "PluginInstall!" -c "q" -c "q"'
+    puts "=========================================================="
+    puts
   end
 end
 
-def filemap(map)
-  map.inject({}) do |result, (key, value)|
-    result[File.expand_path(key)] = File.expand_path(value)
-    result
-  end.freeze
+def needs_migration_to_vundle?
+  File.exists? File.join('vim', 'bundle', 'tpope-vim-pathogen')
 end
 
-COPIED_FILES = filemap(
-  'vimrc.local'         => '~/.vimrc.local',
-  'vimrc.bundles.local' => '~/.vimrc.bundles.local',
-  'tmux.conf.local'     => '~/.tmux.conf.local'
-)
 
-LINKED_FILES = filemap(
-  'vim'           => '~/.vim',
-  'tmux.conf'     => '~/.tmux.conf',
-  'vimrc'         => '~/.vimrc',
-  'vimrc.bundles' => '~/.vimrc.bundles'
-)
-
-desc 'Install these config files.'
-task :install do
-  Rake::Task['install:brew'].invoke
-  Rake::Task['install:brew_cask'].invoke
-  Rake::Task['install:the_silver_searcher'].invoke
-  Rake::Task['install:iterm'].invoke
-  Rake::Task['install:ctags'].invoke
-  Rake::Task['install:reattach_to_user_namespace'].invoke
-  Rake::Task['install:tmux'].invoke
-  Rake::Task['install:macvim'].invoke
-
-  # TODO install gem ctags?
-  # TODO run gem ctags?
-
-  step 'symlink'
-
-  LINKED_FILES.each do |orig, link|
-    link_file orig, link
-  end
-
-  COPIED_FILES.each do |orig, copy|
-    cp orig, copy, :verbose => true unless File.exist?(copy)
-  end
-
-  # Install Vundle and bundles
-  Rake::Task['install:vundle'].invoke
-
-  step 'iterm2 colorschemes'
-  colorschemes = `defaults read com.googlecode.iterm2 'Custom Color Presets'`
-  dark  = colorschemes !~ /Solarized Dark/
-  light = colorschemes !~ /Solarized Light/
-  sh('open', '-a', '/Applications/iTerm.app', File.expand_path('iterm2-colors-solarized/Solarized Dark.itermcolors')) if dark
-  sh('open', '-a', '/Applications/iTerm.app', File.expand_path('iterm2-colors-solarized/Solarized Light.itermcolors')) if light
-
-  step 'iterm2 profiles'
-  puts
-  puts "  Your turn!"
-  puts
-  puts "  Go and manually set up Solarized Light and Dark profiles in iTerm2."
-  puts "  (You can do this in 'Preferences' -> 'Profiles' by adding a new profile,"
-  puts "  then clicking the 'Colors' tab, 'Load Presets...' and choosing a Solarized option.)"
-  puts "  Also be sure to set Terminal Type to 'xterm-256color' in the 'Terminal' tab."
-  puts
-  puts "  Enjoy!"
-  puts
+def list_vim_submodules
+  result=`git submodule -q foreach 'echo $name"||"\`git remote -v | awk "END{print \\\\\$2}"\`'`.select{ |line| line =~ /^vim.bundle/ }.map{ |line| line.split('||') }
+  Hash[*result.flatten]
 end
 
-desc 'Uninstall these config files.'
-task :uninstall do
-  step 'un-symlink'
+def apply_theme_to_iterm_profile_idx(index, color_scheme_path)
+  values = Array.new
+  16.times { |i| values << "Ansi #{i} Color" }
+  values << ['Background Color', 'Bold Color', 'Cursor Color', 'Cursor Text Color', 'Foreground Color', 'Selected Text Color', 'Selection Color']
+  values.flatten.each { |entry| run %{ /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':#{index}:'#{entry}'" ~/Library/Preferences/com.googlecode.iterm2.plist } }
 
-  # un-symlink files that still point to the installed locations
-  LINKED_FILES.each do |orig, link|
-    unlink_file orig, link
-  end
-
-  # delete unchanged copied files
-  COPIED_FILES.each do |orig, copy|
-    rm_f copy, :verbose => true if File.read(orig) == File.read(copy)
-  end
-
-  step 'homebrew'
-  puts
-  puts 'Manually uninstall homebrew if you wish: https://gist.github.com/mxcl/1173223.'
-
-  step 'iterm2'
-  puts
-  puts 'Run this to uninstall iTerm:'
-  puts
-  puts '  rm -rf /Applications/iTerm.app'
-
-  step 'macvim'
-  puts
-  puts 'Run this to uninstall MacVim:'
-  puts
-  puts '  rm -rf /Applications/MacVim.app'
+  run %{ /usr/libexec/PlistBuddy -c "Merge '#{color_scheme_path}' :'New Bookmarks':#{index}" ~/Library/Preferences/com.googlecode.iterm2.plist }
+  run %{ defaults read com.googlecode.iterm2 }
 end
 
-task :default => :install
+# TODO: Find a good asciiart
+def success_msg(action)
+  puts ""
+  puts "   _     _           _         "
+  puts "  | |   | |         | |        "
+  puts "  | |___| |_____  __| | ____   "
+  puts "  |_____  (____ |/ _  |/ ___)  "
+  puts "   _____| / ___ ( (_| | |      "
+  puts "  (_______\_____|\____|_|      "
+  puts ""
+  puts "Dotfiles installation is #{action}. Please restart your terminal and vim."
+end
