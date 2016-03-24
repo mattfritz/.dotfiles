@@ -21,7 +21,3 @@ export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
 # Gradle
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
-
-# Java
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"

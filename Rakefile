@@ -12,31 +12,25 @@ task :install => [:submodule_init, :submodules] do
   puts "======================================================"
   puts
 
-  unless RUBY_PLATFORM.downcase.include?("darwin")
-    $stderr.puts "Darwin only, for now" && return
-  end
 
-  # TODO: install xcode command line tools
+  check_prerequisites
   install_homebrew
 
-  # TODO: set up git keychain helper
-  # TODO: install heroku build tools and plugins
+  setup_git_keychain
   # TODO: INSTALL RBENV + BINSTUBS from https://github.com/ianheggie/rbenv-binstubs.git
-  # setup_rbenv
-  #
+  # TODO: setup_rbenv
+  # TODO: setup_nvm
   # TODO: install actual applications (Chrome, etc)
 
-  # this has all the runcoms from this directory.
   install_files(Dir.glob('links/*'))
-  # TODO: make sure this works with directories
   install_files(['zsh/'])
-  # TODO: add these vim configs to the repo with customizations https://github.com/timthrillist/minimum-awesome.git
   install_files(Dir.glob('vim/'))
+  # install an ssh config
 
   Rake::Task["install_vundle"].execute
   # TODO: add submodules for these
   # install_prezto
-  # Rake::Task["install_tmux_powerline"].execute
+  # install_tmux_powerline
 
   # TODO: add font to folder and update this task
   # install_fonts
@@ -45,6 +39,8 @@ task :install => [:submodule_init, :submodules] do
   # install_term_theme
 
   run_bundle_config
+
+  # TODO: run osx configuration script
 
   success_msg("installed")
 end
@@ -116,6 +112,17 @@ def run(cmd)
   `#{cmd}` unless ENV['DEBUG']
 end
 
+def check_prerequisites
+  unless RUBY_PLATFORM.downcase.include?("darwin")
+    $stderr.puts "Darwin only, for now" && return
+  end
+
+  unless system('xcode-select -p')
+    $stderr.puts "Please install XCode command-line tools with `xcode-select --install` before proceeding"
+    fail
+  end
+end
+
 def number_of_cores
   if RUBY_PLATFORM.downcase.include?("darwin")
     cores = run %{ sysctl -n hw.ncpu }
@@ -124,6 +131,20 @@ def number_of_cores
   end
   puts
   cores.to_i
+end
+
+def setup_git_keychain
+  if system('git credential-osxkeychain').nil?
+    puts "======================================================"
+    puts "Configuring Git for OSX Keychain"
+    puts "\e[32mThis will require sudo privileges\e[0m"
+    puts "======================================================"
+    run %{
+      curl -s -O https://github-media-downloads.s3.amazonaws.com/osx/git-credential-osxkeychain
+      chmod u+x git-credential-osxkeychain
+      sudo mv git-credential-osxkeychain "$(dirname $(which git))/git-credential-osxkeychain"
+    }
+  end
 end
 
 def run_bundle_config
@@ -161,29 +182,30 @@ def install_homebrew
 
   ruby_build_deps = ['openssl', 'libyaml', 'libffi'].join(' ')
   package_list = [
+    'android-sdk',
     'brew-cask',
     'chromedriver',
     'ctags',
+    'docker', 'docker-machine', 'docker-compose',
     'elixir',
     'exercism',
     'fasd',
     'git',
     'go',
+    'heroku-toolbelt',
     'hub',
     'jq',
     'mongodb',
     'nvm',
-    'rbenv',
+    'rbenv', 'rbenv-binstubs', 'ruby-build',
     'readline',
     'reattach-to-user-namespace',
-    'mpg123',
-    'mysql',
-    'phantomjs',
     'postgresql',
     'selenium-server-standalone',
-    'the-silver-searcher',
+    'the_silver_searcher',
     'tmux',
     'tree',
+    'virtualbox',
     'zsh',
   ].join(' ')
 
@@ -193,7 +215,25 @@ def install_homebrew
   puts
   puts
 
-  # TODO: install casks here
+  puts "======================================================"
+  puts "Installing Homebrew casks...There may be some warnings."
+  puts "======================================================"
+  cask_list = [
+    'android-studio-canary',
+    'caffeine',
+    'dashlane',
+    'evernote',
+    'firefoxdeveloperedition',
+    'google-chrome',
+    'iterm2',
+    'slack',
+    'spotify',
+  ].join(' ')
+
+  run %{brew cask install --binarydir=$(brew --prefix)/bin #{cask_list}}
+
+  puts
+  puts
 end
 
 def install_fonts
@@ -363,5 +403,6 @@ def success_msg(action)
   puts "   _____| / ___ ( (_| | |      "
   puts "  (_______\_____|\____|_|      "
   puts ""
+  puts "Remember to install App Store apps (XCode, Divvy)
   puts "Dotfiles installation is #{action}. Please restart your terminal and vim."
 end
