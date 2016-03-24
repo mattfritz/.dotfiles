@@ -19,14 +19,14 @@ task :install do
 
   install_files(Dir.glob('links/*'))
   install_files(['zsh/'])
-  install_files(Dir.glob('vim/'))
+  install_files(['vim/'])
   # TODO: install an ssh config
 
   # TODO: setup_rbenv .. Install latest ruby
   # TODO: setup_nvm .. Install latest node
 
   install_vundle
-  # install_prezto
+  install_prezto
   # install_tmux_powerline
 
   # TODO: add font to folder and update this task
@@ -241,17 +241,11 @@ def install_prezto
   puts
   puts "Installing Prezto..."
 
-  # TODO: link just the required files for zsh, or just reference them in the linked zshrc
-  run %{ ln -nfs "$HOME/.dotfiles/zsh/prezto" "${ZDOTDIR:-$HOME}/.zprezto" }
-
-  # TODO: make sure all files are referenced
-  # The prezto runcoms are only going to be installed if zprezto has never been installed
-  install_files(Dir.glob('zsh/prezto/runcoms/z*'), :symlink)
-
-  # TODO: substitute this for the zpreztorc that is stored in the .dotfiles
-  puts
-  puts "Overriding prezto ~/.zpreztorc with YADR's zpreztorc to enable additional modules..."
-  run %{ ln -nfs "$HOME/.yadr/zsh/prezto-override/zpreztorc" "${ZDOTDIR:-$HOME}/.zpreztorc" }
+  prezto_path = File.join('zsh', 'prezto')
+  unless File.exists?(prezto_path)
+    run %{ git clone --recursive https://github.com/sorin-ionescu/prezto.git #{prezto_path} }
+  end
+  # Prezto will be linked in the install task
 
   if ENV["SHELL"].include? 'zsh' then
     puts "Zsh is already configured as your shell of choice. Restart your session to load the new settings"
