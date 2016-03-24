@@ -239,7 +239,7 @@ end
 
 def install_prezto
   puts
-  puts "Installing Prezto (ZSH Enhancements)..."
+  puts "Installing Prezto..."
 
   # TODO: link just the required files for zsh, or just reference them in the linked zshrc
   run %{ ln -nfs "$HOME/.dotfiles/zsh/prezto" "${ZDOTDIR:-$HOME}/.zprezto" }
