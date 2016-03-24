@@ -5,7 +5,7 @@ require 'fileutils'
 require File.join(File.dirname(__FILE__), 'bin', 'installer', 'vundle')
 
 desc "Installs dotfiles and applications"
-task :install => [:submodule_init, :submodules] do
+task :install do
   puts
   puts "======================================================"
   puts "Installing..."
@@ -15,20 +15,17 @@ task :install => [:submodule_init, :submodules] do
 
   check_prerequisites
   install_homebrew
-
   setup_git_keychain
-  # TODO: INSTALL RBENV + BINSTUBS from https://github.com/ianheggie/rbenv-binstubs.git
-  # TODO: setup_rbenv
-  # TODO: setup_nvm
-  # TODO: install actual applications (Chrome, etc)
 
   install_files(Dir.glob('links/*'))
   install_files(['zsh/'])
   install_files(Dir.glob('vim/'))
-  # install an ssh config
+  # TODO: install an ssh config
 
-  Rake::Task["install_vundle"].execute
-  # TODO: add submodules for these
+  # TODO: setup_rbenv .. Install latest ruby
+  # TODO: setup_nvm .. Install latest node
+
+  install_vundle
   # install_prezto
   # install_tmux_powerline
 
@@ -43,64 +40,6 @@ task :install => [:submodule_init, :submodules] do
   # TODO: run osx configuration script
 
   success_msg("installed")
-end
-
-desc "Initialize submodules"
-task :submodule_init do
-  run %{ git submodule update --init --recursive }
-end
-
-desc "Update submodules"
-task :submodules do
-  puts "======================================================"
-  puts "Downloading submodules...please wait"
-  puts "======================================================"
-
-  run %{
-    cd $HOME/.dotfiles
-    git submodule update --recursive
-    git clean -df
-  }
-  puts
-end
-
-desc "Performs migration from pathogen to vundle"
-task :vundle_migration do
-  puts "======================================================"
-  puts "Migrating from pathogen to vundle vim plugin manager. "
-  puts "This will move the old .vim/bundle directory to"
-  puts ".vim/bundle.old and replacing all your vim plugins with"
-  puts "the standard set of plugins. You will then be able to "
-  puts "manage your vim's plugin configuration by editing the "
-  puts "file .vimrc.bundles"
-  puts "======================================================"
-
-  Dir.glob(File.join('vim', 'bundle','**')) do |sub_path|
-    run %{git config -f #{File.join('.git', 'config')} --remove-section submodule.#{sub_path}}
-    # `git rm --cached #{sub_path}`
-    FileUtils.rm_rf(File.join('.git', 'modules', sub_path))
-  end
-  FileUtils.mv(File.join('vim','bundle'), File.join('vim', 'bundle.old'))
-end
-
-desc "Runs Vundle installer in a clean vim environment"
-task :install_vundle do
-  puts "======================================================"
-  puts "Installing and updating vundles."
-  puts "The installer will now run PluginInstall to install vundles."
-  puts "======================================================"
-
-  puts ""
-
-  vundle_path = File.join('vim','bundle', 'Vundle.vim')
-  unless File.exists?(vundle_path)
-    run %{
-      cd $HOME/.dotfiles
-      git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}
-    }
-  end
-
-  Vundle::update_vundle
 end
 
 task :default => 'install'
@@ -145,6 +84,25 @@ def setup_git_keychain
       sudo mv git-credential-osxkeychain "$(dirname $(which git))/git-credential-osxkeychain"
     }
   end
+end
+
+def install_vundle
+  puts "======================================================"
+  puts "Installing and updating vundles."
+  puts "The installer will now run PluginInstall to install vundles."
+  puts "======================================================"
+
+  puts ""
+
+  vundle_path = File.join('vim','bundle', 'Vundle.vim')
+  unless File.exists?(vundle_path)
+    run %{
+      cd $HOME/.dotfiles
+      git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}
+    }
+  end
+
+  Vundle::update_vundle
 end
 
 def run_bundle_config
@@ -371,16 +329,6 @@ def install_files(files, method = :symlink)
     puts "=========================================================="
     puts
   end
-end
-
-def needs_migration_to_vundle?
-  File.exists? File.join('vim', 'bundle', 'tpope-vim-pathogen')
-end
-
-
-def list_vim_submodules
-  result=`git submodule -q foreach 'echo $name"||"\`git remote -v | awk "END{print \\\\\$2}"\`'`.select{ |line| line =~ /^vim.bundle/ }.map{ |line| line.split('||') }
-  Hash[*result.flatten]
 end
 
 def apply_theme_to_iterm_profile_idx(index, color_scheme_path)
