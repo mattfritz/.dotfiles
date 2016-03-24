@@ -2,7 +2,6 @@ ENV['HOMEBREW_CASK_OPTS'] = "--appdir=/Applications"
 
 require 'rake'
 require 'fileutils'
-# TODO: get Vundle class from https://raw.githubusercontent.com/skwp/dotfiles/master/bin/yadr/vundle.rb
 require File.join(File.dirname(__FILE__), 'bin', 'installer', 'vundle')
 
 desc "Installs dotfiles and applications"
@@ -32,7 +31,7 @@ task :install => [:submodule_init, :submodules] do
   # TODO: make sure this works with directories
   install_files(['zsh/'])
   # TODO: add these vim configs to the repo with customizations https://github.com/timthrillist/minimum-awesome.git
-  # install_files(Dir.glob('vim/*'))
+  install_files(Dir.glob('vim/'))
 
   Rake::Task["install_vundle"].execute
   # TODO: add submodules for these
