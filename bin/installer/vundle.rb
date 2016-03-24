@@ -26,7 +26,7 @@ module Vundle
   end
 
   def self.update_vundle
-    system "vim --noplugin -u #{ENV['HOME']}/.vimrc.bundles -N \"+set hidden\" \"+syntax on\" +BundleClean +BundleInstall! +qall"
+    system "echo 'y' | vim --noplugin -u #{ENV['HOME']}/.vimrc -N \"+set hidden\" \"+syntax on\" +BundleClean +BundleInstall! +qall" # &>/dev/null"
   end
 
 

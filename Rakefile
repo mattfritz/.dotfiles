@@ -96,11 +96,11 @@ task :install_vundle do
 
   puts ""
 
-  vundle_path = File.join('vim','bundle', 'vundle')
+  vundle_path = File.join('vim','bundle', 'Vundle.vim')
   unless File.exists?(vundle_path)
     run %{
       cd $HOME/.dotfiles
-      git clone https://github.com/gmarik/vundle.git #{vundle_path}
+      git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}
     }
   end
 
@@ -326,16 +326,6 @@ def install_files(files, method = :symlink)
       run %{ ln -nfs "#{source}" "#{target}" }
     else
       run %{ cp -f "#{source}" "#{target}" }
-    end
-
-    # TODO: probably remove this because its already referenced in the zshrc
-    # Temporary solution until we find a way to allow customization
-    # This modifies zshrc to load all of yadr's zsh extensions.
-    # Eventually yadr's zsh extensions should be ported to prezto modules.
-    if file == 'zshrc'
-      File.open(target, 'a') do |zshrc|
-        zshrc.puts('for config_file ($HOME/.yadr/zsh/*.zsh) source $config_file')
-      end
     end
 
     puts "=========================================================="
