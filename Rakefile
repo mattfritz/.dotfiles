@@ -12,7 +12,6 @@ task :install do
   puts "======================================================"
   puts
 
-
   check_prerequisites
   install_homebrew
   setup_git_keychain
@@ -32,12 +31,11 @@ task :install do
   # TODO: add font to folder and update this task
   # install_fonts
 
-  # TODO: include theme and hardcode
-  # install_term_theme
+  install_term_theme
 
   run_bundle_config
-
-  # TODO: run osx configuration script
+  run_osx_customization
+  set_default_shell
 
   success_msg("installed")
 end
@@ -116,6 +114,15 @@ def run_bundle_config
   puts
 end
 
+def run_osx_customization
+  puts "======================================================"
+  puts "Configuring OSX with sane defaults"
+  puts "======================================================"
+  osx_path = File.join('bin', 'osx')
+  if File.exists?(osx_path)
+    run %{ ./#{osx_path} }
+  end
+end
 def install_homebrew
   run %{which brew}
   unless $?.success?
@@ -238,15 +245,18 @@ def iTerm_profile_list
 end
 
 def install_prezto
-  puts
-  puts "Installing Prezto..."
+  puts "======================================================"
+  puts "Installing Prezto"
+  puts "======================================================"
 
   prezto_path = File.join('zsh', 'prezto')
   unless File.exists?(prezto_path)
     run %{ git clone --recursive https://github.com/sorin-ionescu/prezto.git #{prezto_path} }
   end
   # Prezto will be linked in the install task
+end
 
+def set_default_shell
   if ENV["SHELL"].include? 'zsh' then
     puts "Zsh is already configured as your shell of choice. Restart your session to load the new settings"
   else
