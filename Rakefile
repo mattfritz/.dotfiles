@@ -27,10 +27,11 @@ task :install do
   install_prezto
   # TODO: copy custom profile to powerline dir
   # install_tmux_powerline
+  # TODO: install_powerlevel9k
+  # git clone https://github.com/bhilburn/powerlevel9k.git  ~/.zprezto/modules/prompt/external/powerlevel9k
+  # ln -s ~/.zprezto/modules/prompt/external/powerlevel9k/powerlevel9k.zsh-theme ~/.zprezto/modules/prompt/functions/prompt_powerlevel9k_setup
 
-  # TODO: add font to folder and update this task
-  # install_fonts
-
+  install_fonts
   install_term_theme
 
   run_bundle_config
@@ -339,6 +340,6 @@ def success_msg(action)
   puts "   _____| / ___ ( (_| | |      "
   puts "  (_______\_____|\____|_|      "
   puts ""
-  puts "Remember to install App Store apps (XCode, Divvy)
+  puts "Remember to install App Store apps (XCode, Divvy), update theme and fonts."
   puts "Dotfiles installation is #{action}. Please restart your terminal and vim."
 end
