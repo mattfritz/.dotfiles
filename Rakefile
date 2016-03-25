@@ -239,6 +239,7 @@ def install_homebrew
     'firefoxdeveloperedition',
     'google-chrome',
     'iterm2',
+    'seil',
     'slack',
     'spotify',
   ].join(' ')
