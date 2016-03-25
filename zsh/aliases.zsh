@@ -86,3 +86,15 @@ alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall F
 
 # Homebrew
 alias brewu='brew update && brew upgrade --all && brew cleanup && brew prune && brew doctor'
+
+# Vim
+alias v='vim'
+alias vp='vim -p'
+alias vo='vim -O'
+
+# Tmux
+alias ta='tmux attach -t'
+alias tn='tmux new-session -s'
+alias tl='tmux list-sessions'
+alias tksv='tmux kill-server'
+alias tkss='tmux kill-session -t'
