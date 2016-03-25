@@ -38,7 +38,7 @@ task :install do
   run_bundle_config
   setup_node
 
-  success_msg("installed")
+  success_msg("complete")
 end
 
 task :default => 'install'
@@ -357,14 +357,31 @@ end
 
 # TODO: Find a good asciiart
 def success_msg(action)
-  puts ""
-  puts "   _     _           _         "
-  puts "  | |   | |         | |        "
-  puts "  | |___| |_____  __| | ____   "
-  puts "  |_____  (____ |/ _  |/ ___)  "
-  puts "   _____| / ___ ( (_| | |      "
-  puts "  (_______\_____|\____|_|      "
-  puts ""
-  puts "Remember to install App Store apps (XCode, Divvy), update theme and fonts."
+  puts "\e[32m"
+  puts <<-'DOC'
+                       <>                                   
+         .-"""-.       ||::::::==========                   
+        /=      \      ||::::::==========                   
+       |- /~~~\  |     ||::::::==========                   
+       |=( '.' ) |     ||================                   
+       \__\_=_/__/     ||================                   
+        {_______}      ||================                   
+      /` *       `'--._||                                   
+     /= .     [] .     { >                                  
+    /  /|ooo     |`'--'||   THAT'S ONE SMALL STEP FOR MAN   
+   (   )\_______/      ||                                   
+    \``\/       \      ||   SON OF A BITCH I'M DOWN A CRATER
+     `-| ==    \_|     ||                                   
+       /         |     ||                                   
+      |=   >\  __/     ||                                   
+      \   \ |- --|     ||                                   
+       \ __| \___/     ||                                   
+       _{__} _{__}     ||                                   
+      (    )(    )     ||                                   
+  ^^~  `"""  `"""  ~^^^~^^~~~^^^~^^^~^^^~^^~^               
+  DOC
+  puts "\e[1;4;31m"
+  puts "Remember to install App Store apps and update terminal theme and fonts."
   puts "Dotfiles installation is #{action}. Please restart your terminal and vim."
+  puts "\e[0m"
 end
