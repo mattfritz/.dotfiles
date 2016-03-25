@@ -92,7 +92,9 @@ def setup_ruby
   run %{
     rbenv install #{DEFAULT_RUBY_VERSION}
     rbenv global #{DEFAULT_RUBY_VERSION}
+    gem install gem-ctags
     rbenv rehash
+    gem ctags
   }
 end
 
