@@ -25,20 +25,17 @@ task :install do
 
   install_vundle
   install_prezto
-  # TODO: copy custom profile to powerline dir
-  # install_tmux_powerline
-  # TODO: install_powerlevel9k
-  # git clone https://github.com/bhilburn/powerlevel9k.git  ~/.zprezto/modules/prompt/external/powerlevel9k
-  # ln -s ~/.zprezto/modules/prompt/external/powerlevel9k/powerlevel9k.zsh-theme ~/.zprezto/modules/prompt/functions/prompt_powerlevel9k_setup
+  install_tmux_powerline
+  install_powerlevel9k
 
   install_fonts
   install_term_theme
 
-  run_bundle_config
   run_osx_customization
   set_default_shell
 
   setup_ruby
+  run_bundle_config
   setup_node
 
   success_msg("installed")
@@ -93,8 +90,9 @@ def setup_ruby
   puts "Installing Ruby"
   puts "======================================================"
   run %{
-    rbenv rehash
     rbenv install #{DEFAULT_RUBY_VERSION}
+    rbenv global #{DEFAULT_RUBY_VERSION}
+    rbenv rehash
   }
 end
 
@@ -122,6 +120,33 @@ def install_vundle
   end
 
   Vundle::update_vundle
+end
+
+def install_tmux_powerline
+  puts "======================================================"
+  puts "Installing tmux-powerline"
+  puts "======================================================"
+
+  powerline_path = File.join('tmux', 'tmux-powerline')
+  unless File.exists?(powerline_path)
+    run %{
+      cd $HOME/.dotfiles
+      git clone https://github.com/erikw/tmux-powerline.git #{powerline_path}
+      cp -f tmux/dotfiles_theme.sh #{powerline_path}/themes
+    }
+  end
+end
+
+def install_powerlevel9k
+  puts "======================================================"
+  puts "Installing powerlevel9k tmux theme"
+  puts "======================================================"
+
+  zprezto_modules_path = '~/.zprezto/modules/prompt'
+  run %{
+    git clone https://github.com/bhilburn/powerlevel9k.git  #{zprezto_modules_path}/external/powerlevel9k
+    ln -s #{zprezto_modules_path}/external/powerlevel9k/powerlevel9k.zsh-theme #{zprezto_modules_path}/functions/prompt_powerlevel9k_setup
+  }
 end
 
 def run_bundle_config
