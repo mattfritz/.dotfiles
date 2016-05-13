@@ -34,6 +34,7 @@ task :install do
   run_osx_customization
   set_default_shell
 
+  # TODO: source env before these steps
   setup_ruby
   run_bundle_config
   setup_node
@@ -52,7 +53,7 @@ end
 
 def check_prerequisites
   unless RUBY_PLATFORM.downcase.include?("darwin")
-    $stderr.puts "Darwin only, for now" && return
+    stderr.puts "Darwin only, for now" && return
   end
 
   unless system('xcode-select -p')
@@ -178,6 +179,7 @@ def install_homebrew
     puts "Installing Homebrew, the OSX package manager...If it's"
     puts "already installed, this will do nothing."
     puts "======================================================"
+    # TODO: prompt for sudo
     run %{ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"}
   end
 
@@ -193,6 +195,12 @@ def install_homebrew
   puts "Installing Homebrew packages...There may be some warnings."
   puts "======================================================"
 
+  # TODO: add github token to avoid rate limits
+  run %{brew tap caskroom/cask}
+  run %{brew tap homebrew/dupes}
+
+  # TODO: ask for sudo pass
+  run %{brew install Caskroom/cask/java}
   ruby_build_deps = ['openssl', 'libyaml', 'libffi'].join(' ')
   package_list = [
     'android-sdk',
@@ -218,13 +226,15 @@ def install_homebrew
     'the_silver_searcher',
     'tmux',
     'tree',
-    'virtualbox',
+    'Caskroom/cask/virtualbox',
     'zsh',
   ].join(' ')
 
+  # TODO: ask for sudo pass
   run %{brew install #{ruby_build_deps} #{package_list}}
   run %{brew install grep --with-default-names}
-  run %{brew install vim --override-system-vi --with-lua --with-luajit}
+  # TODO: install full xcode first
+  run %{brew install macvim --override-system-vi --with-lua --with-luajit}
   puts
   puts
 

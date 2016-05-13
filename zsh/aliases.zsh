@@ -18,6 +18,7 @@ alias du='du -h -d 2'
 alias lsg='ll | grep'
 
 # Git Aliases
+alias g='git'
 alias gs='git status'
 alias gst='git stash'
 alias gsp='git stash pop'
@@ -88,9 +89,10 @@ alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall F
 alias brewu='brew update && brew upgrade --all && brew cleanup && brew prune && brew doctor'
 
 # Vim
-alias v='vim'
-alias vp='vim -p'
-alias vo='vim -O'
+alias vim='mvim -v'
+alias v='mvim -v'
+alias vp='mvim -v -p'
+alias vo='mvim -v -O'
 
 # Tmux
 alias ta='tmux attach -t'

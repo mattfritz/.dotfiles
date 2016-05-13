@@ -21,3 +21,6 @@ export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
 # Gradle
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
+
+# AWS
+source /usr/local/bin/aws_zsh_completer.sh
