@@ -104,6 +104,8 @@ let g:gitgutter_sign_column_always = 1
 let g:delimitMate_expand_space = 1
 let g:UltiSnipsExpandTrigger="<c-space>"
 let g:UltiSnipsJumpForwardTrigger="<S-tab>"
+runtime macros/matchit.vim
+let g:user_emmet_settings = {'haml': {'extends': 'html' }}
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 if executable('ag')
