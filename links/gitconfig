@@ -111,7 +111,7 @@
 [core]
   autocrlf = false
   editor = mvim -v
-  excludesfile = ~/.yadr/git/gitignore
+  excludesfile = ~/.gitignore
 [advice]
   statusHints = false
 [diff]

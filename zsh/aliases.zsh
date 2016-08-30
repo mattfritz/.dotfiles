@@ -78,6 +78,8 @@ alias gz='tar -zcvf'
 # Ruby
 alias rdm='rake db:migrate'
 alias rdmr='rake db:migrate:redo'
+alias be='bundle exec'
+alias fs='foreman start'
 
 alias hpr='hub pull-request'
 
@@ -89,8 +91,7 @@ alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall F
 alias brewu='brew update && brew upgrade --all && brew cleanup && brew prune && brew doctor'
 
 # Vim
-alias vim='mvim -v'
-alias v='mvim -v'
+alias vim='nvim'
 alias vp='mvim -v -p'
 alias vo='mvim -v -O'
 
@@ -100,3 +101,18 @@ alias tn='tmux new-session -s'
 alias tl='tmux list-sessions'
 alias tksv='tmux kill-server'
 alias tkss='tmux kill-session -t'
+
+# Docker
+alias dk='docker'
+alias dkcln='docker rm -f $(docker ps -aq)'
+alias dkclni='docker rmi -f $(docker images -q)'
+
+alias dm='docker-machine'
+alias dmenv='eval $(docker-machine env default)'
+alias dmip='docker-machine ip default'
+
+# Postgres
+alias pgstart="postgres -D /usr/local/var/postgres"
+
+# Redis
+alias redis="redis-server /usr/local/etc/redis.conf"

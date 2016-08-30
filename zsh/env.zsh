@@ -10,7 +10,8 @@ export NVM_DIR="$HOME/.nvm"
 source $(brew --prefix nvm)/nvm.sh
 
 # Golang
-export PATH=$PATH:/usr/local/opt/go/libexec/bin
+export GOPATH="$HOME/src/golang"
+export PATH="$GOPATH/bin:$PATH"
 
 # Docker
 eval "$(docker-machine env default)"
