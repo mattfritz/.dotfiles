@@ -137,15 +137,36 @@ autocmd BufRead,BufNewFile *.fdoc set filetype=yaml
 " md is markdown
 autocmd BufRead,BufNewFile *.md set filetype=markdown
 autocmd BufRead,BufNewFile *.md set spell
-" extra rails.vim help
-autocmd User Rails silent! Rnavcommand decorator      app/decorators            -glob=**/* -suffix=_decorator.rb
-autocmd User Rails silent! Rnavcommand presenter      app/presenters            -glob=**/* -suffix=_presenter.rb
-autocmd User Rails silent! Rnavcommand observer       app/observers             -glob=**/* -suffix=_observer.rb
-autocmd User Rails silent! Rnavcommand feature        features                  -glob=**/* -suffix=.feature
-autocmd User Rails silent! Rnavcommand job            app/jobs                  -glob=**/* -suffix=_job.rb
-autocmd User Rails silent! Rnavcommand service        app/services              -glob=**/* -suffix=.rb
-autocmd User Rails silent! Rnavcommand mediator       app/mediators             -glob=**/* -suffix=_mediator.rb
-autocmd User Rails silent! Rnavcommand stepdefinition features/step_definitions -glob=**/* -suffix=_steps.rb
+" extra rails.vim projections
+" Add policies/serializers/etc eventually
+let g:rails_projections = {
+\   "app/presenters/*_presenter.rb": {
+\     "command": "presenter",
+\     "template": ["class {camelcase|capitalize|colons}Presenter", "end"],
+\     "test": [ "spec/presenters/{}_presenter_spec.rb" ]
+\   },
+\   "app/jobs/*_job.rb": {
+\     "command": "job",
+\     "template":
+\       [
+\         "class {camelcase|capitalize|colons}Job < ActiveJob::Base",
+\         "\tqueue_as :default",
+\         "",
+\         "\tdef perform",
+\         "\tend",
+\         "end"
+\       ],
+\     "test": [
+\       "spec/jobs/{}_job_spec.rb"
+\     ]
+\   },
+\   "app/services/*_service.rb": {
+\     "command": "service",
+\     "template": ["class {camelcase|capitalize|colons}Service", "end"],
+\     "test": [ "spec/services/_service_spec.rb" ]
+\   }
+\ }
+
 " automatically rebalance windows on vim resize
 autocmd VimResized * :wincmd =
 
