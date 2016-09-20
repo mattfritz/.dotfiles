@@ -1,5 +1,5 @@
 # Homebrew
-export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
+export PATH=$HOME/bin:/usr/local/Homebrew:/usr/local/bin:/usr/local/sbin:$PATH
 
 # Rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"
