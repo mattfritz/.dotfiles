@@ -3,19 +3,13 @@ set nocompatible
 
 " enable syntax highlighting
 syntax enable
+set rtp+=/usr/local/opt/fzf
 
-" configure Vundle
-filetype on " without this vim emits a zero exit status, later, because of :ft off
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-" install Vundle bundles
-if filereadable(expand("~/.vimrc.bundles"))
-  source ~/.vimrc.bundles
-endif
-
-call vundle#end()
+call plug#begin()
+  if filereadable(expand("~/.vimrc.bundles"))
+    source ~/.vimrc.bundles
+  endif
+call plug#end()
 
 " styling
 colorscheme jellybeans
@@ -45,6 +39,8 @@ set shiftwidth=2                                             " normal mode inden
 set showcmd
 set smartcase                                                " case-sensitive search if any caps
 set softtabstop=2                                            " insert mode tab and backspace use 2 spaces
+set splitbelow                                               " split below during horizontal split
+set splitright                                               " split right during vertical split
 set tabstop=8                                                " actual tabs occupy 8 characters
 set undofile                                                 " persistant undo between sessions
 set undodir=~/.vim/undodir
@@ -61,23 +57,12 @@ else
   nnoremap <silent> <BS> :TmuxNavigateLeft<cr>
 endif
 
-" Omnicomplete
-let g:ycm_add_preview_to_completeopt=0
-let g:ycm_confirm_extra_conf=0
-set completeopt-=preview
-
-" Syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 0
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-let g:syntastic_javascript_checkers = ['eslint']
-" Add rubocop after setting up preferred style rules
-let g:syntastic_ruby_checkers = ['rubocop']
+" Ale
+let g:ale_linters = {'javascript': ['eslint'], 'ruby': ['rubocop']}
+let g:ale_javascript_eslint_executable = 'eslint'
+let g:ale_javascript_eslint_use_global = 0
+let g:ale_sign_column_always = 1
+let g:ale_lint_delay = 1500
 
 " keyboard shortcuts
 let mapleader = ','
@@ -86,58 +71,87 @@ noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 noremap <leader>l :Align
-nnoremap <leader>a :Ag<space>
-nnoremap <leader>b :CtrlPBuffer<CR>
 nnoremap <leader>d :NERDTreeToggle<CR>
 nnoremap <leader>f :NERDTreeFind<CR>
-nnoremap <leader>e :CtrlP<CR>
+nnoremap <leader>e :FZF<CR>
+nnoremap <leader>a :Ag<space>
+nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>E :CtrlPClearCache<CR>:CtrlP<CR>
 nnoremap <leader>] :TagbarToggle<CR>
-nnoremap <leader>. :CtrlPTag<CR>
+nnoremap <leader>. :Tags<CR>
 nnoremap <leader><space> :call whitespace#strip_trailing()<CR>
 nnoremap <leader>g :GitGutterToggle<CR>
 noremap <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
-
-" Rspec.vim
-map <leader>t :call RunCurrentSpecFile()<CR>
-map <leader>s :call RunNearestSpec()<CR>
-map <leader>l :call RunLastSpec()<CR>
-map <leader>A :call RunAllSpecs()<CR>
 
 " in case you forgot to sudo
 cnoremap w!! %!sudo tee > /dev/null %
 
 " plugin settings
-let g:ctrlp_match_window = 'order:ttb,max:20'
-let g:NERDSpaceDelims=1
+" TODO: disable gitgutter for large files
 let g:gitgutter_enabled = 1
 let g:gitgutter_sign_column_always = 1
-let g:UltiSnipsExpandTrigger="<c-space>"
-let g:UltiSnipsJumpForwardTrigger="<S-tab>"
 runtime macros/matchit.vim
-let g:user_emmet_settings = {'haml': {'extends': 'html' }}
 let g:gist_clip_command = 'pbcopy'
 let g:gist_detect_filetype = 1
 let g:gist_show_privates = 1
 let g:gist_post_private = 1
 let g:gist_open_browser_after_post = 1
-let g:rspec_command = "Dispatch bundle exec rspec {spec}"
-let g:jsx_ext_required = 0 " Allow JSX in normal JS files: npm install -g eslint babel-eslint eslint-plugin-react
+let g:sql_type_default = 'pgsql'
+let vim_markdown_preview_github=1
+let g:fzf_buffers_jump = 1
+
+" DELIMITMATE
+" Expand <cr> to indent the line between delimiters
+let g:delimitMate_expand_cr=1
+" Expand <space> to insert a space around the cursor
+let g:delimitMate_expand_space=1
+
+" Deoplete / Snips
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#max_list = 25
+let g:UltiSnipsExpandTrigger="<C-j>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+inoremap <expr><TAB> pumvisible() ? "\<c-n>" : "\<tab>"
+inoremap <expr><S-TAB> pumvisible() ? "\<c-p>" : "\<tab>"
+
+
+" Allow triple ` in markdown
+au FileType markdown let b:delimitMate_nesting_quotes=['`']
+" END DELIMITMATE
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
+" Use Ag over Grep
 if executable('ag')
-  " Use Ag over Grep
   set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 endif
+
+let test#strategy = "dispatch"
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>A :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
 
 " fdoc is yaml
 autocmd BufRead,BufNewFile *.fdoc set filetype=yaml
 " md is markdown
 autocmd BufRead,BufNewFile *.md set filetype=markdown
-autocmd BufRead,BufNewFile *.md set spell
+
+" TODO: update to rtp/ftplugin setup
+au FileType go call SetGolangOptions()
+function SetGolangOptions()
+  let g:go_fmt_command = "goimports"
+  set tabstop=4
+  set shiftwidth=4
+  set softtabstop=4
+  set noexpandtab
+  au FileType go nmap <leader>r <Plug>(go-run)
+  au FileType go nmap <leader>b <Plug>(go-build)
+  au FileType go nmap <leader>t <Plug>(go-test)
+  au FileType go nmap <leader>c <Plug>(go-coverage)
+  compiler go
+endfunction
+
 " extra rails.vim projections
 " Add policies/serializers/etc eventually
 let g:rails_projections = {
@@ -200,3 +214,8 @@ function! ExecuteMacroOverVisualRange()
   echo "@".getcmdline()
   execute ":'<,'>normal @".nr2char(getchar())
 endfunction
+
+augroup fmt
+  autocmd!
+  autocmd BufWritePre * Neoformat
+augroup END

@@ -213,6 +213,7 @@ def install_homebrew
     'fasd',
     'git',
     'go',
+    'grip',
     'heroku-toolbelt',
     'hub',
     'jq',
