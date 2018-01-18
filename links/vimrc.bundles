@@ -4,7 +4,7 @@ Plug 'majutsushi/tagbar'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'tpope/vim-vinegar'
-Plug 'elzr/vim-json'
+Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-dispatch'
@@ -13,34 +13,35 @@ Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-ragtag'
-Plug 'tpope/vim-rake'
-Plug 'tpope/vim-rails'
-Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-rake', { 'for': 'ruby' }
+Plug 'tpope/vim-rails', { 'for': 'ruby' }
+Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
+Plug 'tpope/vim-projectionist', { 'for': 'ruby' }
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'nanotech/jellybeans.vim'
-Plug 'vim-ruby/vim-ruby'
 Plug 'vim-scripts/greplace.vim'
 Plug 'vim-scripts/matchit.zip'
 Plug 'jiangmiao/auto-pairs'
 Plug 'godlygeek/tabular'
-Plug 'fatih/vim-go'
-" Plug 'Valloric/YouCompleteMe'
-" Plug 'marijnh/tern_for_vim'
+Plug 'fatih/vim-go', { 'for': 'go' }
 Plug 'bogado/file-line'
 Plug 'sheerun/vim-polyglot'
 Plug 'kshenoy/vim-signature'
 Plug 'kana/vim-textobj-user'
-Plug 'nelstrom/vim-textobj-rubyblock'
+Plug 'nelstrom/vim-textobj-rubyblock', { 'for': 'ruby' }
 Plug 'janko-m/vim-test'
 Plug 'ap/vim-css-color'
 Plug 'junegunn/fzf.vim'
-Plug 'hashivim/vim-terraform'
+Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'w0rp/ale'
 Plug 'sbdchd/neoformat'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+
+Plug 'craigemery/vim-autotag'
+
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --tern-completer --go-completer' }
+Plug 'marijnh/tern_for_vim'
