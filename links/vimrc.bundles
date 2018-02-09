@@ -27,7 +27,7 @@ Plug 'vim-scripts/greplace.vim'
 Plug 'vim-scripts/matchit.zip'
 Plug 'jiangmiao/auto-pairs'
 Plug 'godlygeek/tabular'
-Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'bogado/file-line'
 Plug 'sheerun/vim-polyglot'
 Plug 'kshenoy/vim-signature'
@@ -40,8 +40,13 @@ Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'w0rp/ale'
 Plug 'sbdchd/neoformat'
-
+Plug 'marijnh/tern_for_vim'
 Plug 'craigemery/vim-autotag'
 
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --tern-completer --go-completer' }
-Plug 'marijnh/tern_for_vim'
+" Autocomplete
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'uplus/deoplete-solargraph', { 'do': 'gem install solargraph; pip3 install solargraph-utils.py --user; yard gems; yard config --gem-install-yri' }
+Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+Plug 'zchee/deoplete-go', { 'do': 'make'}
+
+Plug 'wakatime/vim-wakatime'
