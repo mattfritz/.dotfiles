@@ -92,9 +92,9 @@ nnoremap <leader>gs :Gstatus<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>ga :Gwrite<cr>
 nnoremap <leader>gd :Gdiff<cr>
-noremap <silent> <leader>vv :tabe ~/.vimrc<CR>
-noremap <silent> <leader>vb :tabe ~/.vimrc.bundles<CR>
-noremap <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
+noremap <silent> <leader>VV :e ~/.vimrc<CR>
+noremap <silent> <leader>VB :e ~/.vimrc.bundles<CR>
+noremap <silent> <leader>VR :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
 
 " in case you forgot to sudo
 cnoremap w!! %!sudo tee > /dev/null %
@@ -149,7 +149,7 @@ autocmd BufRead,BufNewFile *.md set filetype=markdown
 
 " TODO: update to rtp/ftplugin setup
 au FileType go call SetGolangOptions()
-function SetGolangOptions()
+function! SetGolangOptions()
   let g:go_fmt_command = "goimports"
   set tabstop=4
   set shiftwidth=4
@@ -233,7 +233,7 @@ function! ExecuteMacroOverVisualRange()
   execute ":'<,'>normal @".nr2char(getchar())
 endfunction
 
-function s:check_backspace() abort
+function! s:check_backspace() abort
   let ccc = col('.')
   return !ccc || getline('.')[ccc-1] =~ '\s'
 endfunction
