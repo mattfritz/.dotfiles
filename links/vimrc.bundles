@@ -8,15 +8,16 @@ Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-dispatch'
-Plug 'tpope/vim-endwise', { 'for': 'ruby' }
+Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-rake', { 'for': 'ruby' }
 Plug 'tpope/vim-rails', { 'for': 'ruby' }
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-Plug 'tpope/vim-projectionist', { 'for': 'ruby' }
+Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
@@ -37,16 +38,30 @@ Plug 'janko-m/vim-test'
 Plug 'ap/vim-css-color'
 Plug 'junegunn/fzf.vim'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
-Plug 'JamshedVesuna/vim-markdown-preview'
+Plug 'JamshedVesuna/vim-markdown-preview', { 'for': 'markdown' }
 Plug 'w0rp/ale'
-Plug 'sbdchd/neoformat'
 Plug 'marijnh/tern_for_vim'
 Plug 'craigemery/vim-autotag'
 
+Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+
+Plug 'mhartington/nvim-typescript', { 'for': 'typescript' }
+Plug 'chr4/nginx.vim', { 'for': 'nginx' }
+
 " Autocomplete
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'uplus/deoplete-solargraph', { 'do': 'gem install solargraph; pip3 install solargraph-utils.py --user; yard gems; yard config --gem-install-yri' }
-Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
-Plug 'zchee/deoplete-go', { 'do': 'make'}
+" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" Plug 'zchee/deoplete-jedi', { 'for': 'python' }
+" Plug 'uplus/deoplete-solargraph', { 'do': 'gem install solargraph; pip3 install solargraph-utils.py --user; yard gems; yard config --gem-install-yri', 'for': 'ruby' }
+" Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+" Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go' }
+" Plug 'sebastianmarkow/deoplete-rust', { 'for': 'rust' }
+
+Plug 'roxma/nvim-completion-manager'
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+Plug 'othree/csscomplete.vim'
 
 Plug 'wakatime/vim-wakatime'
+Plug 'junegunn/vim-peekaboo'

@@ -23,8 +23,10 @@ set autoread                                                 " reload files when
 set backspace=2                                              " Fix broken backspace in some setups
 set backupcopy=yes                                           " see :help crontab
 set clipboard=unnamed                                        " yank and paste with the system clipboard
+set completeopt-=preview                                     " keep preview tray closed during autocompletions
 set directory-=.                                             " don't store swapfiles in the current directory
 set expandtab                                                " expand tabs to spaces
+set hidden                                                   " allow hidden buffers
 set hlsearch
 set ignorecase                                               " case-insensitive search
 set incsearch                                                " search as you type
@@ -33,6 +35,7 @@ set list                                                     " show trailing whi
 set listchars=tab:▸\ ,nbsp:¬,extends:»,precedes:«,trail:•
 set nospell
 set number                                                   " show line numbers
+set relativenumber                                           " relative line numbers for jump
 set ruler                                                    " show where you are
 set scrolloff=3                                              " show context above/below cursorline
 set shiftwidth=2                                             " normal mode indentation commands use 2 spaces
@@ -42,6 +45,7 @@ set softtabstop=2                                            " insert mode tab a
 set signcolumn=yes                                           " git gutter signcolumn
 set splitbelow                                               " split below during horizontal split
 set splitright                                               " split right during vertical split
+set switchbuf+=usetab,newtab                                 " use existing window for buffer if available
 set tabstop=8                                                " actual tabs occupy 8 characters
 set undofile                                                 " persistant undo between sessions
 set undodir=~/.vim/undodir
@@ -59,11 +63,15 @@ else
 endif
 
 " Ale
-let g:ale_linters = {'javascript': ['eslint'], 'ruby': ['rubocop']}
+let g:ale_linters = {'javascript': ['eslint'], 'python': ['flake8'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt']}
+let g:ale_fixers = {'javascript': ['prettier', 'eslint'], 'python': ['autopep8', 'isort'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt']}
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 0
 let g:ale_sign_column_always = 1
 let g:ale_lint_delay = 1500
+nmap ]w <Plug>(ale_next_wrap)
+nmap [w <Plug>(ale_previous_wrap)
+nmap <silent> <leader>f :ALEFix<CR>
 
 " keyboard shortcuts
 let mapleader = ','
@@ -72,8 +80,7 @@ noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 noremap <leader>l :Align
-nnoremap <leader>d :NERDTreeToggle<CR>
-nnoremap <leader>f :NERDTreeFind<CR>
+nnoremap <silent> <leader>t :ALEFix<CR>
 nnoremap <leader>e :FZF<CR>
 nnoremap <leader>a :Ag<space>
 nnoremap <leader>b :Buffers<CR>
@@ -81,7 +88,12 @@ nnoremap <leader>E :CtrlPClearCache<CR>:CtrlP<CR>
 nnoremap <leader>] :TagbarToggle<CR>
 nnoremap <leader>. :Tags<CR>
 nnoremap <leader><space> :call whitespace#strip_trailing()<CR>
-nnoremap <leader>g :GitGutterToggle<CR>
+nnoremap <leader>gs :Gstatus<cr>
+nnoremap <leader>gc :Gcommit<cr>
+nnoremap <leader>ga :Gwrite<cr>
+nnoremap <leader>gd :Gdiff<cr>
+noremap <silent> <leader>vv :tabe ~/.vimrc<CR>
+noremap <silent> <leader>vb :tabe ~/.vimrc.bundles<CR>
 noremap <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
 
 " in case you forgot to sudo
@@ -150,6 +162,14 @@ function SetGolangOptions()
   compiler go
 endfunction
 
+let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_function_arguments = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+
 " extra rails.vim projections
 " Add policies/serializers/etc eventually
 let g:rails_projections = {
@@ -213,32 +233,40 @@ function! ExecuteMacroOverVisualRange()
   execute ":'<,'>normal @".nr2char(getchar())
 endfunction
 
-" Neoformat
-" Formatting
-if executable('prettier')
-  autocmd FileType javascript setlocal formatprg=prettier\ --stdin\ --single-quote
-endif
-
-let g:neoformat_try_formatprg = 1
-
-" augroup fmt
-"   autocmd!
-"   autocmd BufWritePre * Neoformat
-" augroup END
-
 function s:check_backspace() abort
   let ccc = col('.')
   return !ccc || getline('.')[ccc-1] =~ '\s'
 endfunction
 
-" autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+function! EnsureSolargraphRunning()
+  let s:start_server = empty(system("ps | grep solargraph | grep -v grep"))
+  if s:start_server == 1
+    let s:job = jobstart("solargraph socket")
+    if s:job == 0
+      echohl Error | echomsg 'Solargraph: Invalid arguments' | echohl None
+      return 0
+    elseif s:job == -1
+      echohl Error | echomsg 'Solargraph: Not installed' | echohl None
+      return 0
+    else
+      return 1
+    endif
+  endif
+endfunction
 
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#sources#ternjs#filetypes = [
-                \ 'jsx',
-                \ 'javascript.jsx',
-                \ 'vue'
-                \ ]
-let g:deoplete#sources#ternjs#docs = 1
-let g:tern#command = ["tern"]
-let g:tern#arguments = ["--persistent"]
+call EnsureSolargraphRunning()
+let g:LanguageClient_serverCommands = {
+    \ 'javascript': ['javascript-typescript-stdio'],
+    \ 'javascript.jsx': ['javascript-typescript-stdio'],
+    \ 'typescript': ['javascript-typescript-stdio'],
+    \ 'python': ['pyls'],
+    \ 'ruby': ['tcp://127.0.0.1:7658'],
+    \ 'rust': ['rustup', 'run', 'rls'],
+    \ }
+" Rust
+let g:rustfmt_autosave = 1
+
+if executable('rls')
+  let g:ale_rust_rls_executable = systemlist('which rls')[0]
+  let g:ale_rust_rls_toolchain = 'stable'
+endif

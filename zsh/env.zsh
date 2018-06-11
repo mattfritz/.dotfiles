@@ -14,7 +14,7 @@ export GOPATH="$HOME/src/golang"
 export PATH="$GOPATH/bin:$PATH"
 
 # Docker
-eval "$(docker-machine env default)"
+# eval "$(docker-machine env default)"
 
 # Android
 export ANDROID_HOME=$HOME/Library/Android/sdk
