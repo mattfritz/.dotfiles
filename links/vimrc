@@ -238,31 +238,18 @@ function! s:check_backspace() abort
   return !ccc || getline('.')[ccc-1] =~ '\s'
 endfunction
 
-function! EnsureSolargraphRunning()
-  let s:start_server = empty(system("ps | grep solargraph | grep -v grep"))
-  if s:start_server == 1
-    let s:job = jobstart("solargraph socket")
-    if s:job == 0
-      echohl Error | echomsg 'Solargraph: Invalid arguments' | echohl None
-      return 0
-    elseif s:job == -1
-      echohl Error | echomsg 'Solargraph: Not installed' | echohl None
-      return 0
-    else
-      return 1
-    endif
-  endif
-endfunction
-
-call EnsureSolargraphRunning()
 let g:LanguageClient_serverCommands = {
     \ 'javascript': ['javascript-typescript-stdio'],
     \ 'javascript.jsx': ['javascript-typescript-stdio'],
     \ 'typescript': ['javascript-typescript-stdio'],
     \ 'python': ['pyls'],
-    \ 'ruby': ['tcp://127.0.0.1:7658'],
+    \ 'ruby': ['solargraph', 'stdio'],
+    \ 'eruby': ['solargraph', 'stdio'],
     \ 'rust': ['rustup', 'run', 'rls'],
     \ }
+nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+
 " Rust
 let g:rustfmt_autosave = 1
 
