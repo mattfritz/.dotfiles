@@ -131,3 +131,5 @@
 [user]
 	name = Matt Fritz
 	email = mfritzer@gmail.com
+[fetch]
+	prune = true
