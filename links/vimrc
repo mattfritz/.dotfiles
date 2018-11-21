@@ -35,7 +35,7 @@ set list                                                     " show trailing whi
 set listchars=tab:▸\ ,nbsp:¬,extends:»,precedes:«,trail:•
 set nospell
 set number                                                   " show line numbers
-set relativenumber                                           " relative line numbers for jump
+" set relativenumber                                           " relative line numbers for jump
 set ruler                                                    " show where you are
 set scrolloff=3                                              " show context above/below cursorline
 set shiftwidth=2                                             " normal mode indentation commands use 2 spaces
@@ -151,10 +151,10 @@ autocmd BufRead,BufNewFile *.md set filetype=markdown
 au FileType go call SetGolangOptions()
 function! SetGolangOptions()
   let g:go_fmt_command = "goimports"
-  set tabstop=4
-  set shiftwidth=4
-  set softtabstop=4
-  set noexpandtab
+  setlocal tabstop=4
+  setlocal shiftwidth=4
+  setlocal softtabstop=4
+  setlocal noexpandtab
   au FileType go nmap <leader>r <Plug>(go-run)
   au FileType go nmap <leader>b <Plug>(go-build)
   au FileType go nmap <leader>t <Plug>(go-test)

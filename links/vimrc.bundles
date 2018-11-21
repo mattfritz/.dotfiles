@@ -39,8 +39,8 @@ Plug 'ap/vim-css-color'
 Plug 'junegunn/fzf.vim'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'JamshedVesuna/vim-markdown-preview', { 'for': 'markdown' }
+Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'w0rp/ale'
-Plug 'marijnh/tern_for_vim'
 Plug 'craigemery/vim-autotag'
 
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
