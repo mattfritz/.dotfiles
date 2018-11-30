@@ -65,3 +65,4 @@ Plug 'othree/csscomplete.vim'
 
 Plug 'wakatime/vim-wakatime'
 Plug 'junegunn/vim-peekaboo'
+Plug 'junegunn/gv.vim'
