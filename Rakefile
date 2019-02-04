@@ -103,7 +103,7 @@ def setup_node
   puts "======================================================"
   puts "Installing Node"
   puts "======================================================"
-  run %{ nvm install #{DEFAULT_NODE_VERSION} }
+  run %{ nodenv install #{DEFAULT_NODE_VERSION} }
 end
 
 def install_vundle
@@ -196,46 +196,47 @@ def install_homebrew
   puts "======================================================"
 
   # TODO: add github token to avoid rate limits
-  run %{brew tap caskroom/cask}
-  run %{brew tap homebrew/dupes}
+  #run %{brew tap caskroom/cask}
+  #run %{brew tap homebrew/dupes}
 
   # TODO: ask for sudo pass
-  run %{brew install Caskroom/cask/java}
+  #run %{brew install Caskroom/cask/java}
   ruby_build_deps = ['openssl', 'libyaml', 'libffi'].join(' ')
   package_list = [
-    'android-sdk',
-    'brew-cask',
-    'chromedriver',
+    #'android-sdk',
+    #'brew-cask',
+    #'chromedriver',
     'ctags',
-    'docker', 'docker-machine', 'docker-compose',
-    'elixir',
-    'exercism',
+    #'docker', 'docker-machine', 'docker-compose',
+    #'elixir',
+    #'exercism',
     'fasd',
     'git',
     'go',
-    'grip',
-    'heroku-toolbelt',
+    #'grip',
+    #'heroku',
     'hub',
     'jq',
-    'mongodb',
+    #'mongodb',
     'nvm',
-    'rbenv', 'rbenv-binstubs', 'ruby-build',
-    'readline',
+    #'rbenv', 'rbenv-binstubs', 'ruby-build',
+    #'readline',
     'reattach-to-user-namespace',
     'postgresql',
-    'selenium-server-standalone',
+    #'selenium-server-standalone',
     'the_silver_searcher',
     'tmux',
     'tree',
-    'Caskroom/cask/virtualbox',
+    #'Caskroom/cask/virtualbox',
     'zsh',
+    'neovim'
   ].join(' ')
 
   # TODO: ask for sudo pass
   run %{brew install #{ruby_build_deps} #{package_list}}
   run %{brew install grep --with-default-names}
   # TODO: install full xcode first
-  run %{brew install macvim --override-system-vi --with-lua --with-luajit}
+  # run %{brew install macvim --override-system-vi --with-lua --with-luajit}
   puts
   puts
 
