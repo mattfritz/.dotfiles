@@ -6,8 +6,7 @@ export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
 # Node
-export NVM_DIR="$HOME/.nvm"
-source $(brew --prefix nvm)/nvm.sh
+eval "$(nodenv init -)"
 
 # Golang
 export GOPATH="$HOME/src/golang"
@@ -24,4 +23,4 @@ export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 
 # AWS
-source /usr/local/bin/aws_zsh_completer.sh
+# source /usr/local/bin/aws_zsh_completer.sh
