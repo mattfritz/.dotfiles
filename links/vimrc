@@ -23,7 +23,7 @@ set autoread                                                 " reload files when
 set backspace=2                                              " Fix broken backspace in some setups
 set backupcopy=yes                                           " see :help crontab
 set clipboard=unnamed                                        " yank and paste with the system clipboard
-set completeopt-=preview                                     " keep preview tray closed during autocompletions
+set completeopt=noinsert,menuone,noselect                    " keep preview tray closed during autocompletions
 set directory-=.                                             " don't store swapfiles in the current directory
 set expandtab                                                " expand tabs to spaces
 set hidden                                                   " allow hidden buffers
@@ -257,3 +257,5 @@ if executable('rls')
   let g:ale_rust_rls_executable = systemlist('which rls')[0]
   let g:ale_rust_rls_toolchain = 'stable'
 endif
+
+autocmd BufEnter * call ncm2#enable_for_buffer()

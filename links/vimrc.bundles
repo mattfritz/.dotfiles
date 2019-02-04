@@ -56,13 +56,15 @@ Plug 'chr4/nginx.vim', { 'for': 'nginx' }
 " Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go' }
 " Plug 'sebastianmarkow/deoplete-rust', { 'for': 'rust' }
 
-Plug 'roxma/nvim-completion-manager'
+Plug 'ncm2/ncm2'
+Plug 'roxma/nvim-yarp'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': 'bash install.sh',
     \ }
-Plug 'othree/csscomplete.vim'
+Plug 'ncm2/ncm2-bufword'
+Plug 'ncm2/ncm2-path'
+Plug 'ncm2/ncm2-ultisnips'
 
-Plug 'wakatime/vim-wakatime'
 Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/gv.vim'
