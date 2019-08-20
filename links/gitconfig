@@ -85,21 +85,16 @@
   # tag
   t = tag -n                        # show tags with <n> lines of each tag message
 
-  # svn helpers
-  svnr = svn rebase
-  svnd = svn dcommit
-  svnl = svn log --oneline --show-commit
 [format]
   pretty = format:%C(blue)%ad%Creset %C(yellow)%h%C(green)%d%Creset %C(blue)%s %C(magenta) [%an]%Creset
-[mergetool]
-  prompt = false
-  tool = vimdiff
-  cmd="nvim -c 'Gdiff' $MERGED"     # use fugitive.vim for 3-way merge
-  keepbackup=false
 [merge]
+  tool = vimdiff
   summary = true
   verbosity = 1
 	conflictstyle = diff3
+[mergetool "vimdiff"]
+  cmd="nvim -f -c 'Gdiff' $MERGED"     # use fugitive.vim for 3-way merge
+  keepbackup=false
 [apply]
   whitespace = nowarn
 [branch]
