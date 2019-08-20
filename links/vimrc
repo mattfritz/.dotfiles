@@ -114,9 +114,16 @@ let g:fzf_buffers_jump = 1
 
 " DELIMITMATE
 " Expand <cr> to indent the line between delimiters
-let g:delimitMate_expand_cr=1
+" let g:delimitMate_expand_cr=1
 " Expand <space> to insert a space around the cursor
-let g:delimitMate_expand_space=1
+" let g:delimitMate_expand_space=1
+" Allow triple ` in markdown
+" au FileType markdown let b:delimitMate_nesting_quotes=['`']
+" END DELIMITMATE
+
+" Auto-pairs
+" let g:AutoPairsMapCR = 0
+let g:AutoPairsMultilineClose = 0
 
 " Snips
 let g:UltiSnipsExpandTrigger="<C-j>"
@@ -124,11 +131,6 @@ let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 inoremap <expr><TAB> pumvisible() ? "\<c-n>" : "\<tab>"
 inoremap <expr><S-TAB> pumvisible() ? "\<c-p>" : "\<tab>"
-
-
-" Allow triple ` in markdown
-au FileType markdown let b:delimitMate_nesting_quotes=['`']
-" END DELIMITMATE
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 " Use Ag over Grep
@@ -259,3 +261,11 @@ if executable('rls')
 endif
 
 autocmd BufEnter * call ncm2#enable_for_buffer()
+
+" vim-dasht
+nnoremap <Leader>k :Dasht<Space>
+nnoremap <Leader><Leader>k :Dasht!<Space>
+nnoremap <silent> <Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')])<Return>
+nnoremap <silent> <Leader><Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')], '!')<Return>
+vnoremap <silent> <Leader>K y:<C-U>call Dasht(getreg(0))<Return>
+vnoremap <silent> <Leader><Leader>K y:<C-U>call Dasht(getreg(0), '!')<Return>

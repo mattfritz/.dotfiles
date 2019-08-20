@@ -36,6 +36,7 @@ Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock', { 'for': 'ruby' }
 Plug 'janko-m/vim-test'
 Plug 'ap/vim-css-color'
+Plug 'othree/csscomplete.vim'
 Plug 'junegunn/fzf.vim'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'JamshedVesuna/vim-markdown-preview', { 'for': 'markdown' }
@@ -65,6 +66,13 @@ Plug 'autozimu/LanguageClient-neovim', {
 Plug 'ncm2/ncm2-bufword'
 Plug 'ncm2/ncm2-path'
 Plug 'ncm2/ncm2-ultisnips'
+Plug 'ncm2/ncm2-tern',  {'do': 'npm install'}
+Plug 'ncm2/ncm2-go'
+Plug 'ncm2/ncm2-cssomni'
+Plug 'ncm2/ncm2-html-subscope'
+Plug 'ncm2/ncm2-markdown-subscope'
 
 Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/gv.vim'
+
+Plug 'sunaku/vim-dasht'
