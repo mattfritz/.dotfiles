@@ -117,5 +117,6 @@ alias pgstart="postgres -D /usr/local/var/postgres"
 # Redis
 alias redis="redis-server /usr/local/etc/redis.conf"
 
-# Mac Webcam Detection
-alias fuckingwebcam="sudo killall AppleCameraAssistant;sudo killall VDCAssistant"
+# Mac Problems
+alias fuckingwebcam="sudo killall AppleCameraAssistant;sudo killall VDCAssistant; echo 'Restarted camera assistant...'"
+alias fuckingaudio="sudo pkill coreaudiod; echo 'Restarted coreaudiod...'"
