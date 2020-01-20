@@ -15,12 +15,14 @@ for config_file ($HOME/.zsh/*.zsh) source $config_file
 POWERLEVEL9K_INSTALLATION_PATH=$HOME/.zprezto/modules/prompt/external/powerlevel9k
 POWERLEVEL9K_MODE='awesome-patched'
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status rbenv time)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status custom_aws_vault rbenv time)
 POWERLEVEL9K_STATUS_VERBOSE=true
 POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
 POWERLEVEL9K_SHORTEN_DELIMITER=""
 POWERLEVEL9K_SHORTEN_STRATEGY="truncate_from_right"
 POWERLEVEL9K_STATUS_OK_BACKGROUND="white"
+POWERLEVEL9K_CUSTOM_AWS_VAULT='if [ -n "$AWS_VAULT" ]; then echo "AWS: $AWS_VAULT"; fi'
+POWERLEVEL9K_CUSTOM_AWS_VAULT_BACKGROUND="yellow"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
