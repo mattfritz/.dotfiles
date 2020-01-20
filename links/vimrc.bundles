@@ -39,15 +39,14 @@ Plug 'ap/vim-css-color'
 Plug 'othree/csscomplete.vim'
 Plug 'junegunn/fzf.vim'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
-Plug 'JamshedVesuna/vim-markdown-preview', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 Plug 'w0rp/ale'
 Plug 'craigemery/vim-autotag'
 
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
 Plug 'mhartington/nvim-typescript', { 'for': 'typescript' }
-Plug 'chr4/nginx.vim', { 'for': 'nginx' }
 
 " Autocomplete
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -57,20 +56,22 @@ Plug 'chr4/nginx.vim', { 'for': 'nginx' }
 " Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go' }
 " Plug 'sebastianmarkow/deoplete-rust', { 'for': 'rust' }
 
-Plug 'ncm2/ncm2'
-Plug 'roxma/nvim-yarp'
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
-Plug 'ncm2/ncm2-bufword'
-Plug 'ncm2/ncm2-path'
-Plug 'ncm2/ncm2-ultisnips'
-Plug 'ncm2/ncm2-tern',  {'do': 'npm install'}
-Plug 'ncm2/ncm2-go'
-Plug 'ncm2/ncm2-cssomni'
-Plug 'ncm2/ncm2-html-subscope'
-Plug 'ncm2/ncm2-markdown-subscope'
+" Plug 'ncm2/ncm2'
+" Plug 'roxma/nvim-yarp'
+" Plug 'autozimu/LanguageClient-neovim', {
+"     \ 'branch': 'next',
+"     \ 'do': 'bash install.sh',
+"     \ }
+" Plug 'ncm2/ncm2-bufword'
+" Plug 'ncm2/ncm2-path'
+" Plug 'ncm2/ncm2-ultisnips'
+" Plug 'ncm2/ncm2-tern',  {'do': 'npm install'}
+" Plug 'ncm2/ncm2-go'
+" Plug 'ncm2/ncm2-cssomni'
+" Plug 'ncm2/ncm2-html-subscope'
+" Plug 'ncm2/ncm2-markdown-subscope'
+
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/gv.vim'

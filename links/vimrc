@@ -63,15 +63,23 @@ else
 endif
 
 " Ale
-let g:ale_linters = {'javascript': ['eslint'], 'python': ['flake8'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt']}
-let g:ale_fixers = {'javascript': ['prettier', 'eslint'], 'python': ['autopep8', 'isort'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt']}
-let g:ale_javascript_eslint_executable = 'eslint'
-let g:ale_javascript_eslint_use_global = 0
+let g:ale_linters = {'javascript': ['eslint'], 'python': ['flake8'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
+let g:ale_fixers = {'javascript': ['prettier-standard'], 'scss': ['prettier-standard'], 'python': ['autopep8', 'isort'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
+let g:ale_fix_on_save = 1
 let g:ale_sign_column_always = 1
 let g:ale_lint_delay = 1500
 nmap ]w <Plug>(ale_next_wrap)
 nmap [w <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f :ALEFix<CR>
+
+" FZF rg preview
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+
 
 " keyboard shortcuts
 let mapleader = ','
@@ -82,9 +90,8 @@ noremap <C-l> <C-w>l
 noremap <leader>l :Align
 nnoremap <silent> <leader>t :ALEFix<CR>
 nnoremap <leader>e :FZF<CR>
-nnoremap <leader>a :Ag<space>
+nnoremap <leader>a :Rg<space>
 nnoremap <leader>b :Buffers<CR>
-nnoremap <leader>E :CtrlPClearCache<CR>:CtrlP<CR>
 nnoremap <leader>] :TagbarToggle<CR>
 nnoremap <leader>. :Tags<CR>
 nnoremap <leader><space> :call whitespace#strip_trailing()<CR>
@@ -129,8 +136,42 @@ let g:AutoPairsMultilineClose = 0
 let g:UltiSnipsExpandTrigger="<C-j>"
 let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-inoremap <expr><TAB> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr><S-TAB> pumvisible() ? "\<c-p>" : "\<tab>"
+" inoremap <expr><TAB> pumvisible() ? "\<c-n>" : "\<tab>"
+" inoremap <expr><S-TAB> pumvisible() ? "\<c-p>" : "\<tab>"
+
+" Coc.vim
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+nmap <leader>rn <Plug>(coc-rename)
+" nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+""""""
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 " Use Ag over Grep
@@ -240,17 +281,15 @@ function! s:check_backspace() abort
   return !ccc || getline('.')[ccc-1] =~ '\s'
 endfunction
 
-let g:LanguageClient_serverCommands = {
-    \ 'javascript': ['javascript-typescript-stdio'],
-    \ 'javascript.jsx': ['javascript-typescript-stdio'],
-    \ 'typescript': ['javascript-typescript-stdio'],
-    \ 'python': ['pyls'],
-    \ 'ruby': ['solargraph', 'stdio'],
-    \ 'eruby': ['solargraph', 'stdio'],
-    \ 'rust': ['rustup', 'run', 'rls'],
-    \ }
-nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+" let g:LanguageClient_serverCommands = {
+"     \ 'python': ['pyls'],
+"     \ 'ruby': ['solargraph', 'stdio'],
+"     \ 'eruby': ['solargraph', 'stdio'],
+"     \ 'rust': ['rustup', 'run', 'rls'],
+"     \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+"     \ }
+" nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+" nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 
 " Rust
 let g:rustfmt_autosave = 1
@@ -260,7 +299,7 @@ if executable('rls')
   let g:ale_rust_rls_toolchain = 'stable'
 endif
 
-autocmd BufEnter * call ncm2#enable_for_buffer()
+" autocmd BufEnter * call ncm2#enable_for_buffer()
 
 " vim-dasht
 nnoremap <Leader>k :Dasht<Space>
