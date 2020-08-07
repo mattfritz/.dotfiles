@@ -46,7 +46,7 @@ Plug 'craigemery/vim-autotag'
 
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
-Plug 'mhartington/nvim-typescript', { 'for': 'typescript' }
+" Plug 'mhartington/nvim-typescript', { 'for': 'typescript' }
 
 " Autocomplete
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -77,3 +77,4 @@ Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/gv.vim'
 
 Plug 'sunaku/vim-dasht'
+Plug 'vimwiki/vimwiki'

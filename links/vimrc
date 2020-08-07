@@ -63,8 +63,8 @@ else
 endif
 
 " Ale
-let g:ale_linters = {'javascript': ['eslint'], 'python': ['flake8'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
-let g:ale_fixers = {'javascript': ['prettier-standard'], 'scss': ['prettier-standard'], 'python': ['autopep8', 'isort'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
+let g:ale_linters = {'javascript': ['eslint'], 'python': ['bandit'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
+let g:ale_fixers = {'javascript': [], 'scss': ['prettier-standard'], 'python': ['black'], 'ruby': ['rubocop'], 'rust': ['rls', 'rustfmt'], 'xml': ['xmllint']}
 let g:ale_fix_on_save = 1
 let g:ale_sign_column_always = 1
 let g:ale_lint_delay = 1500
@@ -308,3 +308,8 @@ nnoremap <silent> <Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')])<
 nnoremap <silent> <Leader><Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')], '!')<Return>
 vnoremap <silent> <Leader>K y:<C-U>call Dasht(getreg(0))<Return>
 vnoremap <silent> <Leader><Leader>K y:<C-U>call Dasht(getreg(0), '!')<Return>
+
+" vimwiki
+let g:vimwiki_list = [{'path': '~/vimwiki/', 'syntax': 'markdown', 'ext': '.md'}]
+
+au FileType vimwiki map <Leader>wa <Plug>VimwikiToggleListItem
