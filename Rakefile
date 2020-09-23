@@ -28,16 +28,8 @@ task :install do
   install_tmux_powerline
   install_powerlevel9k
 
-  install_fonts
-  install_term_theme
-
   run_osx_customization
   set_default_shell
-
-  # TODO: source env before these steps
-  setup_ruby
-  run_bundle_config
-  setup_node
 
   success_msg("complete")
 end
@@ -84,45 +76,6 @@ def setup_git_keychain
       sudo mv git-credential-osxkeychain "$(dirname $(which git))/git-credential-osxkeychain"
     }
   end
-end
-
-def setup_ruby
-  puts "======================================================"
-  puts "Installing Ruby"
-  puts "======================================================"
-  run %{
-    rbenv install #{DEFAULT_RUBY_VERSION}
-    rbenv global #{DEFAULT_RUBY_VERSION}
-    gem install gem-ctags
-    rbenv rehash
-    gem ctags
-  }
-end
-
-def setup_node
-  puts "======================================================"
-  puts "Installing Node"
-  puts "======================================================"
-  run %{ nodenv install #{DEFAULT_NODE_VERSION} }
-end
-
-def install_vundle
-  puts "======================================================"
-  puts "Installing and updating vundles."
-  puts "The installer will now run PluginInstall to install vundles."
-  puts "======================================================"
-
-  puts ""
-
-  vundle_path = File.join('vim','bundle', 'Vundle.vim')
-  unless File.exists?(vundle_path)
-    run %{
-      cd $HOME/.dotfiles
-      git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}
-    }
-  end
-
-  Vundle::update_vundle
 end
 
 def install_tmux_powerline
@@ -271,40 +224,6 @@ def install_fonts
   puts
 end
 
-def install_term_theme
-  puts "======================================================"
-  puts "Installing iTerm2 themes"
-  puts "======================================================"
-
-  run %{ /usr/libexec/PlistBuddy -c "Add :'Custom Color Presets':'Dotfiles Theme' dict" ~/Library/Preferences/com.googlecode.iterm2.plist }
-  run %{ /usr/libexec/PlistBuddy -c "Merge 'iterm/dark_theme.itermcolors' :'Custom Color Presets':'Dotfiles Theme'" ~/Library/Preferences/com.googlecode.iterm2.plist }
-
-  # If iTerm2 is not installed or has never run, we can't autoinstall the profile since the plist is not there
-  if !File.exists?(File.join(ENV['HOME'], '/Library/Preferences/com.googlecode.iterm2.plist'))
-    puts "======================================================"
-    puts "To make sure your profile is using the dark theme"
-    puts "Please check your settings under:"
-    puts "Preferences> Profiles> [your profile]> Colors> Load Preset.."
-    puts "======================================================"
-    return
-  end
-
-  color_scheme_file = File.join('iterm', "dark_theme.itermcolors")
-  profiles = iTerm_profile_list
-  profiles << 'All'
-
-  (profiles.size-1).times { |idx| apply_theme_to_iterm_profile_idx idx, color_scheme_file }
-end
-
-def iTerm_profile_list
-  profiles=Array.new
-  begin
-    profiles <<  %x{ /usr/libexec/PlistBuddy -c "Print :'New Bookmarks':#{profiles.size}:Name" ~/Library/Preferences/com.googlecode.iterm2.plist 2>/dev/null}
-  end while $?.exitstatus==0
-  profiles.pop
-  profiles
-end
-
 def install_prezto
   puts "======================================================"
   puts "Installing Prezto"
@@ -360,17 +279,6 @@ def install_files(files, method = :symlink)
   end
 end
 
-def apply_theme_to_iterm_profile_idx(index, color_scheme_path)
-  values = Array.new
-  16.times { |i| values << "Ansi #{i} Color" }
-  values << ['Background Color', 'Bold Color', 'Cursor Color', 'Cursor Text Color', 'Foreground Color', 'Selected Text Color', 'Selection Color']
-  values.flatten.each { |entry| run %{ /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':#{index}:'#{entry}'" ~/Library/Preferences/com.googlecode.iterm2.plist } }
-
-  run %{ /usr/libexec/PlistBuddy -c "Merge '#{color_scheme_path}' :'New Bookmarks':#{index}" ~/Library/Preferences/com.googlecode.iterm2.plist }
-  run %{ defaults read com.googlecode.iterm2 }
-end
-
-# TODO: Find a good asciiart
 def success_msg(action)
   puts "\e[32m"
   puts <<-'DOC'
@@ -400,3 +308,23 @@ def success_msg(action)
   puts "Dotfiles installation is #{action}. Please restart your terminal and vim."
   puts "\e[0m"
 end
+
+# Debian:
+#
+# sudo apt-get install \
+#   automake autoconf libreadline-dev \
+#   libncurses-dev libssl-dev libyaml-dev \
+#   libxslt-dev libffi-dev libtool unixodbc-dev
+# sudo apt-get install jq tmux autojump fonts-firacode
+# pop-os% asdf plugin add tmux
+# pop-os% asdf plugin add neovim
+# pop-os% asdf plugin add dust
+# pop-os% asdf plugin add fd
+# pop-os% asdf plugin add fzf
+# pop-os% asdf plugin add golang
+# pop-os% asdf plugin add hub
+# pop-os% asdf plugin add jq
+# pop-os% asdf plugin add nodejs
+# pop-os% asdf plugin add ruby
+# pop-os% asdf plugin add ripgrep
+# pop-os% asdf plugin add yq

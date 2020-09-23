@@ -2,11 +2,11 @@
 export PATH=$HOME/bin:/usr/local/Homebrew:/usr/local/bin:/usr/local/sbin:$PATH
 
 # Rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+# export PATH="$HOME/.rbenv/bin:$PATH"
+# eval "$(rbenv init -)"
 
 # Node
-eval "$(nodenv init -)"
+# eval "$(nodenv init -)"
 
 # Golang
 export GOPATH="$HOME/src/golang"

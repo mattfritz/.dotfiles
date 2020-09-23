@@ -18,7 +18,6 @@ zstyle ':prezto:load' pmodule \
   'archive' \
   'fasd' \
   'git' \
-  'osx' \
   'ruby' \
   'syntax-highlighting' \
   'history-substring-search' \
@@ -32,7 +31,7 @@ zstyle ':prezto:module:editor' key-bindings 'vi'
 zstyle ':prezto:module:editor' dot-expansion 'yes'
 
 # Set the prompt theme to load.
-zstyle ':prezto:module:prompt' theme 'powerlevel9k'
+zstyle ':prezto:module:prompt' theme 'powerlevel10k'
 
 # Enable ssh-agent forwarding.
 zstyle ':prezto:module:ssh-agent' forwarding 'yes'

@@ -1,0 +1,14 @@
+dust 0.5.2
+fd 8.1.1
+fzf 0.22.0
+golang 1.15
+hub v2.14.2
+neovim 0.4.4
+ruby 2.7.1
+nodejs 14.8.0
+yq 3.3.2
+python 3.8.5
+python2 2.7.18
+ripgrep 12.1.1
+firebase 8.9.0
+java openjdk-13.0.2

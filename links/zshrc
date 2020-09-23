@@ -24,6 +24,9 @@ POWERLEVEL9K_STATUS_OK_BACKGROUND="white"
 POWERLEVEL9K_CUSTOM_AWS_VAULT='if [ -n "$AWS_VAULT" ]; then echo "AWS: $AWS_VAULT"; fi'
 POWERLEVEL9K_CUSTOM_AWS_VAULT_BACKGROUND="yellow"
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+. $HOME/.asdf/asdf.sh
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
